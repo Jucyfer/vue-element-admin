@@ -22,3 +22,34 @@ export function logout() {
     method: 'post'
   })
 }
+
+export function getUsers() {
+  return request({
+    url: '/vue-element-admin/users',
+    method: 'get'
+  })
+}
+
+export function addUser(data) {
+  return request({
+    url: '/vue-element-admin/user',
+    method: 'post',
+    data
+  })
+}
+
+export function updateUser(id, data) {
+  return request({
+    url: `/vue-element-admin/user/${id}`,
+    method: 'put',
+    data
+  })
+}
+
+export function deleteUser(id) {
+  return request({
+    url: `/vue-element-admin/user/${id}`,
+    method: 'delete'
+  })
+}
+

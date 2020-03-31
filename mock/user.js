@@ -1,4 +1,27 @@
-
+import Mock from 'mockjs'
+const usersList = [
+  {
+    key: 'admin',
+    name: 'admin',
+    pass: 'admin',
+    description: 'Super Administrator. Have access to view all pages.',
+    roles: ['admin', 'editor', 'visitor']
+  },
+  {
+    key: 'editor',
+    name: 'editor',
+    pass: 'editor',
+    description: 'Normal Editor. Can see all pages except permission page',
+    roles: ['editor', 'visitor']
+  },
+  {
+    key: 'visitor',
+    name: 'visitor',
+    pass: 'visitor',
+    description: 'Just a visitor. Can only see the home page and the document page',
+    roles: ['visitor']
+  }
+]
 const tokens = {
   admin: {
     token: 'admin-token'
@@ -78,6 +101,53 @@ export default [
       return {
         code: 20000,
         data: 'success'
+      }
+    }
+  },
+  // mock get all users form server
+  {
+    url: '/vue-element-admin/users',
+    type: 'get',
+    response: _ => {
+      return {
+        code: 20000,
+        data: usersList
+      }
+    }
+  },
+
+  // add user
+  {
+    url: '/vue-element-admin/user',
+    type: 'post',
+    response: {
+      code: 20000,
+      data: {
+        key: Mock.mock('@integer(300, 5000)')
+      }
+    }
+  },
+
+  // update user
+  {
+    url: '/vue-element-admin/user/[A-Za-z0-9]',
+    type: 'put',
+    response: {
+      code: 20000,
+      data: {
+        status: 'success'
+      }
+    }
+  },
+
+  // delete user
+  {
+    url: '/vue-element-admin/user/[A-Za-z0-9]',
+    type: 'delete',
+    response: {
+      code: 20000,
+      data: {
+        status: 'success'
       }
     }
   }

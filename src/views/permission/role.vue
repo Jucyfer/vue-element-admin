@@ -33,20 +33,20 @@
       </el-table-column>
     </el-table>
 
-    <el-dialog :visible.sync="dialogVisible" :title="dialogType==='edit'?'Edit Role':'New Role'">
+    <el-dialog :visible.sync="dialogVisible" :title="dialogType==='edit'?'编辑角色':'新增角色'">
       <el-form :model="role" label-width="80px" label-position="left">
-        <el-form-item label="Name">
-          <el-input v-model="role.name" placeholder="Role Name" />
+        <el-form-item label="角色名称">
+          <el-input v-model="role.name" placeholder="Role Name" :disabled="dialogType==='edit'" />
         </el-form-item>
-        <el-form-item label="Desc">
+        <el-form-item label="角色描述">
           <el-input
             v-model="role.description"
             :autosize="{ minRows: 2, maxRows: 4}"
             type="textarea"
-            placeholder="Role Description"
+            placeholder="请输入角色描述"
           />
         </el-form-item>
-        <el-form-item label="Menus">
+        <el-form-item label="角色权限">
           <el-tree
             ref="tree"
             :check-strictly="checkStrictly"
@@ -59,8 +59,8 @@
         </el-form-item>
       </el-form>
       <div style="text-align:right;">
-        <el-button type="danger" @click="dialogVisible=false">Cancel</el-button>
-        <el-button type="primary" @click="confirmRole">Confirm</el-button>
+        <el-button type="danger" @click="dialogVisible=false">取消</el-button>
+        <el-button type="primary" @click="confirmRole">提交</el-button>
       </div>
     </el-dialog>
   </div>

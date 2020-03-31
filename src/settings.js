@@ -1,5 +1,6 @@
 module.exports = {
-  title: 'Vue Element Admin',
+  // title: 'vue Element Admin',
+  title: 'Report Manage Platform',
 
   /**
    * @type {boolean} true | false
