@@ -88,15 +88,21 @@ export const constantRoutes = [
   },
   // 插入的菜单
   {
-    path: '/allreportsadmin',
+    path: '/reports',
     component: Layout,
-    redirect: '/allreportsadmin',
+    meta: { title: '尽调报告', icon: 'skill', noCache: true },
     children: [
       {
         path: 'allreports',
         component: () => import('@/views/usr_tables/usr_all-reports_admin'),
         name: 'AllReports',
-        meta: { title: '尽调报告管理', icon: 'skill', noCache: true }
+        meta: { title: '尽调报告管理（审核）', icon: 'skill', noCache: true }
+      },
+      {
+        path: 'reportManage',
+        component: () => import('@/views/usr_tables/usr_all-reports_admin'),
+        name: 'ReportManage',
+        meta: { title: '尽调报告管理（管理人）', icon: 'skill', noCache: true }
       }
     ]
   },
@@ -186,6 +192,7 @@ export const asyncRoutes = [
         meta: {
           // title: 'Role Permission',
           title: '用户管理',
+          icon: 'lock',
           roles: ['admin']
         }
       },
@@ -196,6 +203,7 @@ export const asyncRoutes = [
         meta: {
           // title: 'Role Permission',
           title: '角色管理',
+          icon: 'lock',
           roles: ['admin']
         }
       }
