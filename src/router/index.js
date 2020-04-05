@@ -99,9 +99,9 @@ export const constantRoutes = [
         meta: { title: '尽调报告管理（审核）', icon: 'skill', noCache: true }
       },
       {
-        path: 'reportManage',
-        component: () => import('@/views/usr_tables/usr_all-reports_admin'),
-        name: 'ReportManage',
+        path: 'usr_reports',
+        component: () => import('@/views/usr_tables/usr_reports'),
+        name: 'UserReports',
         meta: { title: '尽调报告管理（管理人）', icon: 'skill', noCache: true }
       }
     ]
@@ -422,6 +422,22 @@ export const asyncRoutes = [
   //     }
   //   ]
   // },
+  {
+    path: '/competition',
+    component: Layout,
+    redirect: 'competition',
+    // component: () => import('@/views/competition/Competition.vue'),
+    // name: 'Competition',
+    // meta: { title: '实盘大赛', icon: 'money', noCache: true },
+    children: [
+      {
+        path: '',
+        component: () => import('@/views/competition/Competition.vue'),
+        name: 'Competition',
+        meta: { title: '实盘大赛', icon: 'money', noCache: true }
+      }
+    ]
+  },
   {
     path: 'external-anotherlink',
     component: Layout,
