@@ -54,7 +54,7 @@
     </el-table>
 
     <!--浮出的对话框-->
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" width="80%">
+    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" width="80%" :close-on-click-modal="false">
       <!--      <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="70px" style="width: 400px; margin-left:50px;">-->
       <!--       el-form的属性： label-width="70px"-->
       <el-form
