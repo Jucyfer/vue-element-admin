@@ -11,7 +11,14 @@
       style="width: 100%;"
       @sort-change="sortChange"
     >
-      <el-table-column label="序号" prop="id" sortable="custom" align="center" width="80" :class-name="getSortClass('id')">
+      <el-table-column
+        label="序号"
+        prop="id"
+        sortable="custom"
+        align="center"
+        width="80"
+        :class-name="getSortClass('id')"
+      >
         <template slot-scope="{row}">
           <span>{{ row.id }}</span>
         </template>
@@ -49,37 +56,25 @@
     <!--浮出的对话框-->
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" width="80%">
       <!--      <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="70px" style="width: 400px; margin-left:50px;">-->
-      <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="70px" style="width: 90%; margin-left:50px;margin-right: 50px">
-        <el-form-item label="Type" prop="type">
-          <el-select v-model="temp.type" class="filter-item" placeholder="Please select">
-            <el-option v-for="item in calendarTypeOptions" :key="item.key" :label="item.display_name" :value="item.key" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="Date" prop="timestamp">
-          <el-date-picker v-model="temp.timestamp" type="datetime" placeholder="Please pick a date" />
-        </el-form-item>
-        <el-form-item label="Title" prop="title">
-          <el-input v-model="temp.title" />
-        </el-form-item>
-        <!--        增加了一个Content-->
-        <el-form-item label="Content">
-          <el-input :autosize="{ minRows: 2, maxRows: 4}" type="textarea" placeholder="Please input" />
-        </el-form-item>
-        <el-form-item label="Status">
-          <el-select v-model="temp.status" class="filter-item" placeholder="Please select">
-            <el-option v-for="item in statusOptions" :key="item" :label="item" :value="item" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="MarkDown">
-          <markdown-editor ref="markdownEditor" v-model="markdownContent" :options="{hideModeSwitch:true,previewStyle:'tab'}" height="400px" mode="wysiwyg" @input="debugData" />
+      <!--       el-form的属性： label-width="70px"-->
+      <el-form
+        ref="dataForm"
+        :rules="rules"
+        :model="currentStepData"
+        :title="currentStepData['title']"
+        label-position="top"
+        style="width: 90%; margin-left:50px;margin-right: 50px"
+      >
+        <el-form-item v-for="quest in currentStepData.qList" :key="quest.q" :label="quest.q | questFilter" prop="type">
+          <component :is="quest.is | componentFilter" v-model="quest.data" :type="quest.is |  inpuTypeFilter" :column-meta="quest.dataHead" :options="{hideModeSwitch:true,previewStyle:'tab'}" mode="wysiwyg" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <!--        随便加的-->
-        <el-button>
+        <el-button @click="handlePreviousStep" :disabled="currentStep==1">
           上一步
         </el-button>
-        <el-button>
+        <el-button @click="handleNextStep" :disabled="currentStep==comstandardinfo.data.length">
           下一步
         </el-button>
         <!--        随便加的（结束）-->
@@ -87,7 +82,7 @@
           取消
         </el-button>
         <el-button type="primary" @click="dialogStatus==='create'?createData():updateData()">
-          确定
+          保存
         </el-button>
       </div>
     </el-dialog>
@@ -95,9 +90,11 @@
 </template>
 <script>
 // import { fetchList, createArticle, updateArticle } from '@/api/article'
-import { createArticle, updateArticle } from '@/api/article'
+// import { createArticle, updateArticle } from '@/api/article'
 import waves from '@/directive/waves' // waves directive
 import MarkdownEditor from '@/components/MarkdownEditor'
+import DynamicTable from '@/views/table/DynamicTable'
+
 const calendarTypeOptions = [
   { key: 'CN', display_name: 'China' },
   { key: 'US', display_name: 'USA' },
@@ -106,39 +103,390 @@ const calendarTypeOptions = [
 ]
 
 // arr to obj, such as { CN : "China", US : "USA" }
-const calendarTypeKeyValue = calendarTypeOptions.reduce((acc, cur) => {
-  acc[cur.key] = cur.display_name
-  return acc
-}, {})
-console.log(JSON.parse(JSON.stringify(calendarTypeKeyValue)))
-
+// const calendarTypeKeyValue = calendarTypeOptions.reduce((acc, cur) => {
+//   acc[cur.key] = cur.display_name
+//   return acc
+// }, {})
+const qMap = {
+  'Q1': '公司简介（公司历史沿革、业务概况、经营理念等）',
+  'Q2': '公司每年向基金业协会报送经会计师事务所审计的年度财务报告和所管理私募基金年度投资运作基本情况',
+  'Q3': '公司的组织架构图',
+  'Q4': '公司的组织架构（各部门职能及负责人信息）',
+  'Q5': '公司股权结构',
+  'Q6': '公司的专业团队规模',
+  'Q7': '关键岗位人才人员介绍(例如投资总监、基金经理、研究总监、量化总监、风控总监、市场总监等，以各公司的实际情况为准)的姓名、职位职务、进入本公司的时间、教育背景、之前的工作履历、投资历史及主要业绩(例如曾管理的产品数目、资产规模、所管理的各支产品的业绩情况等信息)',
+  'Q8': '团队稳定性',
+  'Q9': '介绍公司对员工的考核标准、收入结构以及激励机制',
+  'Q10': '公司的运营风险管理框架，以及如何识别、评估、监控和控制运营风险',
+  'Q11': '公司的内部合规管理方法',
+  'Q12': '公司是否拥有自行研发或者使用标准化IT产品？（若是，请回答下一题）',
+  'Q13': 'IT系统服务器的托管方式(是托管在自有机房还是托管机房)，IT系统采用的编程语言，以及敏感数据和关键系统的保存与灾备机制(如何应对电源、电脑软、硬件系统崩溃或网络通讯中断等突发事件)',
+  'Q14': '公司储存数据的方式、数据库架构以及数据的来源',
+  'Q15': '请说明公司整体的优势和劣势是什么，以及维持优势的关键因素。',
+  'Q16': '公司长期合作的外部服务商情况',
+  'Q17': '与知名金融机构合作产品规模、成立时间等'
+}
 export default {
   name: 'UsrAllReportsAdmin',
-  components: { MarkdownEditor },
+  // eslint-disable-next-line vue/no-unused-components
+  components: { MarkdownEditor, DynamicTable },
   directives: { waves },
   filters: {
-    statusFilter(status) {
-      const statusMap = {
-        published: 'success',
-        draft: 'info',
-        deleted: 'danger'
-      }
-      return statusMap[status]
+    questFilter(questId) {
+      return qMap[questId]
     },
-    typeFilter(type) {
-      return calendarTypeKeyValue[type]
+    componentFilter(isStr) {
+      let realIs = ''
+      switch (isStr) {
+        case 'input':
+          realIs = 'el-input'
+          break
+        case 'markdown-editor':
+          realIs = 'markdown-editor'
+          break
+        case 'dynamic-table':
+          realIs = 'dynamic-table'
+          break
+        default:
+          realIs = 'el-input'
+          break
+      }
+      return realIs
+    },
+    inpuTypeFilter(isStr) {
+      let rType = ''
+      switch (isStr) {
+        case 'input':
+          rType = 'textarea'
+          break
+        default:
+          break
+      }
+      return rType
     }
   },
   data() {
     return {
+      // 对话框的标记步骤
+      currentStep: 1,
+      currentStepData: {},
       // 增加的模板对象
       comstandardinfo: {
-        comname: '',
-        pid: ''
+        'ticket': 'FA02-C032-26372-04D1A',
+        'size': 6,
+        'data': [{
+          'step': 1,
+          'title': '公司情况及基本资料',
+          'qList': [{
+            'q': 'Q1',
+            'tg': 'orgdescription',
+            'is': 'input',
+            'data': ''
+          }, {
+            'q': 'Q2',
+            'tg': 'orgfinancialstatus',
+            'is': 'input',
+            'data': ''
+          }, {
+            'q': 'Q3',
+            'tg': 'organizestructimage',
+            'is': 'markdown-editor',
+            'data': ''
+          }, {
+            'q': 'Q4',
+            'tg': 'organizestruct',
+            'is': 'dynamic-table',
+            'data': [{
+              'depart': '',
+              'head': '',
+              'count': '',
+              'function': ''
+            }, {
+              'depart': '',
+              'head': '',
+              'count': '',
+              'function': ''
+            }, {
+              'depart': '',
+              'head': '',
+              'count': '',
+              'function': ''
+            }],
+            'dataHead': [{
+              'name': 'depart',
+              'label': '部门名称'
+            }, {
+              'name': 'head',
+              'label': '负责人'
+            }, {
+              'name': 'count',
+              'label': '员工人数'
+            }, {
+              'name': 'function',
+              'label': '职能'
+            }]
+          }, {
+            'q': 'Q5',
+            'tg': 'equitystructure',
+            'is': 'dynamic-table',
+            'data': [{
+              'name': '',
+              'amt': 100,
+              'percent': 100.0
+            }, {
+              'name': '',
+              'amt': 100,
+              'percent': 100.0
+            }, {
+              'name': '',
+              'amt': 100,
+              'percent': 100.0
+            }],
+            'dataHead': [{
+              'name': 'name',
+              'label': '股东'
+            }, {
+              'name': 'amt',
+              'label': '股本（万元）'
+            }, {
+              'name': 'percent',
+              'label': '持股比例'
+            }]
+          }]
+        }, {
+          'step': 2,
+          'title': '专业团队',
+          'qList': [{
+            'q': 'Q6',
+            'tg': 'teamtrace',
+            'is': 'dynamic-table',
+            'data': [{
+              'annual': '',
+              'size': '',
+              'changeDescription': ''
+            }, {
+              'annual': '',
+              'size': '',
+              'changeDescription': ''
+            }, {
+              'annual': '',
+              'size': '',
+              'changeDescription': ''
+            }],
+            'dataHead': [{
+              'name': 'annual',
+              'label': '年度'
+            }, {
+              'name': 'size',
+              'label': '团队员工数目'
+            }, {
+              'name': 'changeDescription',
+              'label': '关键人员变动情况说明'
+            }]
+          }, {
+            'q': 'Q7',
+            'tg': 'keystaff',
+            'is': 'dynamic-table',
+            'data': [{
+              'name': '',
+              'pos': '',
+              'entrydate': '',
+              'edu': '',
+              'career': ''
+            },
+            {
+              'name': '',
+              'pos': '',
+              'entrydate': '',
+              'edu': '',
+              'career': ''
+            },
+            {
+              'name': '',
+              'pos': '',
+              'entrydate': '',
+              'edu': '',
+              'career': ''
+            }],
+            'dataHead': [{
+              'name': 'name',
+              'label': '姓名'
+            },
+            {
+              'name': 'pos',
+              'label': '职位'
+            },
+            {
+              'name': 'entrydate',
+              'label': '入职日期'
+            },
+            {
+              'name': 'edu',
+              'label': '教育背景'
+            },
+            {
+              'name': 'career',
+              'label': '职业经历'
+            }]
+          }, {
+            'q': 'Q8',
+            'tg': 'teamstability',
+            'is': 'dynamic-table',
+            'data': [{
+              'pos': '',
+              'curr': '',
+              'decrease': '',
+              'increase': '',
+              'depercent1yr': '',
+              'decincper': ''
+            },
+            {
+              'pos': '',
+              'curr': '',
+              'decrease': '',
+              'increase': '',
+              'depercent1yr': '',
+              'decincper': ''
+            },
+            {
+              'pos': '',
+              'curr': '',
+              'decrease': '',
+              'increase': '',
+              'depercent1yr': '',
+              'decincper': ''
+            }],
+            'dataHead': [{
+              'name': 'pos',
+              'label': '岗位'
+            },
+            {
+              'name': 'curr',
+              'label': '目前人数'
+            },
+            {
+              'name': 'decrease',
+              'label': '离职人数'
+            },
+            {
+              'name': 'increase',
+              'label': '新增人数'
+            },
+            {
+              'name': 'depercent1yr',
+              'label': '近一年离职率'
+            },
+            {
+              'name': 'decincper',
+              'label': '离职及新增人员变动百分比'
+            }]
+          }, {
+            'q': 'Q9',
+            'tg': 'kpidesc',
+            'is': 'input',
+            'data': ''
+          }]
+        }, {
+          'step': 3,
+          'title': '公司运营管理',
+          'qList': [{
+            'q': 'Q10',
+            'tg': 'riskframework',
+            'is': 'input',
+            'data': ''
+          }, {
+            'q': 'Q11',
+            'tg': 'comlianceregulation',
+            'is': 'input',
+            'data': ''
+          }, {
+            'q': 'Q12',
+            'tg': 'hasStandarditproduct',
+            'is': 'option',
+            'data': ''
+          }, {
+            'q': 'Q13',
+            'tg': 'itproductdetail',
+            'is': 'input',
+            'data': ''
+          }, {
+            'q': 'Q14',
+            'tg': 'datastorelifecycle',
+            'is': 'input',
+            'data': ''
+          }]
+        }, {
+          'step': 4,
+          'title': '公司优劣势',
+          'qList': [{
+            'q': 'Q15',
+            'tg': 'swot',
+            'is': 'input',
+            'data': ''
+          }]
+        }, {
+          'step': 5,
+          'title': '外部服务商',
+          'qList': [{
+            'q': 'Q16',
+            'tg': 'externalprovider',
+            'is': 'dynamic-table',
+            'data': [{
+              'type': '',
+              'name': '',
+              'interface': '',
+              'contact': ''
+            }],
+            'dataHead': [{
+              'name': 'type',
+              'label': '服务类型'
+            },
+            {
+              'name': 'name',
+              'label': '服务商名称'
+            },
+            {
+              'name': 'interface',
+              'label': '服务商联系人'
+            },
+            {
+              'name': 'contact',
+              'label': '服务商联系方式'
+            }]
+          }]
+        }, {
+          'step': 6,
+          'title': '与知名金融机构合作情况',
+          'qList': [{
+            'q': 'Q17',
+            'tg': 'cooperationdetail',
+            'is': 'dynamic-table',
+            'data': [{
+              'financename': '',
+              'productname': '',
+              'productscale': '',
+              'foundat': ''
+            }],
+            'dataHead': [{
+              'name': 'financename',
+              'label': '金融机构名称'
+            },
+            {
+              'name': 'productname',
+              'label': '合作产品名称'
+            },
+            {
+              'name': 'productscale',
+              'label': '合作产品规模'
+            },
+            {
+              'name': 'foundat',
+              'label': '产品成立时间'
+            }]
+          }]
+        }]
       },
-      reports: {
-
-      },
+      reports: {},
       // end
       tableKey: 0,
       list: null,
@@ -178,12 +526,36 @@ export default {
         title: [{ required: true, message: 'title is required', trigger: 'blur' }]
       },
       downloadLoading: false
+
     }
   },
   created() {
     this.getList()
   },
   methods: {
+    handlePreviousStep() {
+      // eslint-disable-next-line eqeqeq
+      if (this.currentStep == 1) {
+        return
+      } else {
+        this.currentStep -= 1
+        this.currentStepData = this.getXstep(this.currentStep)
+      }
+    },
+    handleNextStep() {
+      // eslint-disable-next-line eqeqeq
+      if (this.currentStep == this.comstandardinfo.data.length) {
+        return
+      } else {
+        this.currentStep += 1
+        this.currentStepData = this.getXstep(this.currentStep)
+      }
+    },
+    getXstep(stepIndex) {
+      const dataArr = this.comstandardinfo.data
+      // eslint-disable-next-line eqeqeq
+      return dataArr.filter(step => step.step == stepIndex)[0]
+    },
     getList() {
       // this.listLoading = true
       // fetchList(this.listQuery).then(response => {
@@ -262,36 +634,9 @@ export default {
         type: ''
       }
     },
-    handleCreate() {
-      this.resetTemp()
-      this.dialogStatus = 'create'
-      this.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
-    },
-    createData() {
-      this.$refs['dataForm'].validate((valid) => {
-        if (valid) {
-          this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
-          this.temp.author = 'vue-element-admin'
-          createArticle(this.temp).then(() => {
-            this.list.unshift(this.temp)
-            this.dialogFormVisible = false
-            this.$notify({
-              title: 'Success',
-              message: 'Created Successfully',
-              type: 'success',
-              duration: 2000
-            })
-          })
-        }
-      })
-    },
+
     handleUpdate(row) {
-      this.temp = Object.assign({}, row) // copy obj
-      this.temp.timestamp = new Date(this.temp.timestamp)
-      this.dialogStatus = 'update'
+      this.currentStepData = this.getXstep(this.currentStep)
       this.dialogFormVisible = true
       this.$nextTick(() => {
         this.$refs['dataForm'].clearValidate()
@@ -302,17 +647,17 @@ export default {
         if (valid) {
           const tempData = Object.assign({}, this.temp)
           tempData.timestamp = +new Date(tempData.timestamp) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
-          updateArticle(tempData).then(() => {
-            const index = this.list.findIndex(v => v.id === this.temp.id)
-            this.list.splice(index, 1, this.temp)
-            this.dialogFormVisible = false
-            this.$notify({
-              title: 'Success',
-              message: 'Update Successfully',
-              type: 'success',
-              duration: 2000
-            })
-          })
+          // updateArticle(tempData).then(() => {
+          //   const index = this.list.findIndex(v => v.id === this.temp.id)
+          //   this.list.splice(index, 1, this.temp)
+          //   this.dialogFormVisible = false
+          //   this.$notify({
+          //     title: 'Success',
+          //     message: 'Update Successfully',
+          //     type: 'success',
+          //     duration: 2000
+          //   })
+          // })
         }
       })
     },
@@ -323,7 +668,7 @@ export default {
         type: 'success',
         duration: 2000
       })
-      this.list.splice(index, 1)
+      // this.list.splice(index, 1)
     },
     // handleFetchPv(pv) {
     //   fetchPv(pv).then(response => {
@@ -343,12 +688,13 @@ export default {
 </script>
 
 <style scoped>
-  .progress_style::before{
+  .progress_style::before {
     content: "填写进度：";
     display: inline-block;
     padding-bottom: 10px;
   }
-  .progress_style{
+
+  .progress_style {
     padding-top: 10px;
     padding-bottom: 10px;
   }
