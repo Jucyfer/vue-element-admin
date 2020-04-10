@@ -1,10 +1,13 @@
 <template>
   <div>
-    <span v-if="!showEditor" @click="showEditor=true">{{ currentValue | validshow }}</span>
+    <!--    <span v-if="!showEditor" class=".span" @click="showEditor = isEditable">{{ facadeValue | validshow }}</span>-->
+    <component :is="viewas" v-if="!showEditor" class=".span" @click="showEditor = isEditable">{{ facadeValue | validshow }}</component>
     <el-input
       v-if="showEditor"
-      v-model="currentValue"
+      v-model.trim="currentValue"
       v-insertfocus4el
+      :type="editType||'text'"
+      :autosize="editType=='textarea'"
       @blur="showEditor=false"
       @input="handleInput($event)"
     />
@@ -16,7 +19,11 @@ export default {
   name: 'EditableCell',
   filters: {
     validshow(data) {
-      return data || '无'
+      if (!data || (data.replace && data.replace(/\s/g, '').length === 0)) {
+        return '无'
+      } else {
+        return data
+      }
     }
   },
   directives: {
@@ -27,12 +34,20 @@ export default {
       }
     }
   },
-  props: ['value'],
+  props: { value: [Number, String, Array, Object], editType: String, editable: Boolean, customContentWrapper: Function, viewas: String },
   event: ['input'],
   data() {
     return {
       showEditor: false,
       currentValue: this.value
+    }
+  },
+  computed: {
+    isEditable() {
+      return this.editable == null ? true : this.editable
+    },
+    facadeValue() {
+      return this.customContentWrapper ? this.customContentWrapper(this.value) : this.value
     }
   },
   watch: {
@@ -51,8 +66,9 @@ export default {
 </script>
 
 <style scoped>
-    span{
-        display: block;
-        width: 100%;
-    }
+  .span {
+    display: block;
+    width: 100%;
+    word-break: break-word;
+  }
 </style>

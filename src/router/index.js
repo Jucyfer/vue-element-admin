@@ -96,13 +96,21 @@ export const constantRoutes = [
         path: 'allreports',
         component: () => import('@/views/usr_tables/usr_all-reports_admin'),
         name: 'AllReports',
-        meta: { title: '尽调报告管理（审核）', icon: 'skill', noCache: true }
+        meta: {
+          title: '尽调报告管理（审核）',
+          // icon: 'skill',
+          noCache: true
+        }
       },
       {
         path: 'usr_reports',
         component: () => import('@/views/usr_tables/usr_reports'),
         name: 'UserReports',
-        meta: { title: '尽调报告管理（管理人）', icon: 'skill', noCache: true }
+        meta: {
+          title: '尽调报告管理（管理人）',
+          // icon: 'skill',
+          noCache: true
+        }
       }
     ]
   },
@@ -190,9 +198,7 @@ export const asyncRoutes = [
         component: () => import('@/views/permission/user'),
         name: 'UserManage',
         meta: {
-          // title: 'Role Permission',
           title: '用户管理',
-          icon: 'lock',
           roles: ['admin']
         }
       },
@@ -201,9 +207,7 @@ export const asyncRoutes = [
         component: () => import('@/views/permission/role'),
         name: 'RolePermission',
         meta: {
-          // title: 'Role Permission',
           title: '角色管理',
-          icon: 'lock',
           roles: ['admin']
         }
       }

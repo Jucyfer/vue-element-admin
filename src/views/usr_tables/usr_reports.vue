@@ -33,7 +33,7 @@
       <!--      Status=>状态-->
       <el-table-column label="状态" class-name="status-col" width="100">
         <template slot-scope="{row}">
-          <el-tag :type="row.status | statusFilter">
+          <el-tag :type="row.status">
             {{ row.status }}
           </el-tag>
         </template>
@@ -43,9 +43,6 @@
           <el-button type="primary" size="mini" @click="handleUpdate(row)">
             修改
           </el-button>
-          <el-button size="mini" type="success" @click="handleModifyStatus(row,'published')">
-            查看
-          </el-button>
           <el-button size="mini" type="danger" @click="handleDelete(row,$index)">
             清空
           </el-button>
@@ -54,27 +51,24 @@
     </el-table>
 
     <!--浮出的对话框-->
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" width="80%" :close-on-click-modal="false">
-      <!--      <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="70px" style="width: 400px; margin-left:50px;">-->
-      <!--       el-form的属性： label-width="70px"-->
+    <el-dialog :title="currentStepData['title']" :visible.sync="dialogFormVisible" width="80%" :close-on-click-modal="false">
       <el-form
         ref="dataForm"
         :rules="rules"
         :model="currentStepData"
-        :title="currentStepData['title']"
         label-position="top"
         style="width: 90%; margin-left:50px;margin-right: 50px"
       >
-        <el-form-item v-for="quest in currentStepData.qList" :key="quest.q" :label="quest.q | questFilter" prop="type">
-          <component :is="quest.is | componentFilter" v-model="quest.data" :type="quest.is |  inpuTypeFilter" :column-meta="quest.dataHead" :options="{hideModeSwitch:true,previewStyle:'tab'}" mode="wysiwyg" />
+        <el-form-item v-for="quest in currentStepData.qList" :key="quest.q" :label="quest.q | questFilter" :prop="quest.tg">
+          <component :is="quest.is | componentFilter" v-model="quest.data" :type="quest.is | inpuTypeFilter" :column-meta="quest.dataHead" :options="{hideModeSwitch:true,previewStyle:'tab'}" mode="wysiwyg" :custom-options="{fixed:quest.fixed,customContentWrapper:customContentWrapper.bind(this)}" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <!--        随便加的-->
-        <el-button @click="handlePreviousStep" :disabled="currentStep==1">
+        <el-button :disabled="currentStep==1" @click="handlePreviousStep">
           上一步
         </el-button>
-        <el-button @click="handleNextStep" :disabled="currentStep==comstandardinfo.data.length">
+        <el-button :disabled="currentDataSet.data && currentStep==currentDataSet.data.length" @click="handleNextStep">
           下一步
         </el-button>
         <!--        随便加的（结束）-->
@@ -119,13 +113,17 @@ const qMap = {
   'Q9': '介绍公司对员工的考核标准、收入结构以及激励机制',
   'Q10': '公司的运营风险管理框架，以及如何识别、评估、监控和控制运营风险',
   'Q11': '公司的内部合规管理方法',
-  'Q12': '公司是否拥有自行研发或者使用标准化IT产品？（若是，请回答下一题）',
+  'Q12': '公司是否拥有自行研发或者使用标准化IT产品？',
   'Q13': 'IT系统服务器的托管方式(是托管在自有机房还是托管机房)，IT系统采用的编程语言，以及敏感数据和关键系统的保存与灾备机制(如何应对电源、电脑软、硬件系统崩溃或网络通讯中断等突发事件)',
   'Q14': '公司储存数据的方式、数据库架构以及数据的来源',
   'Q15': '请说明公司整体的优势和劣势是什么，以及维持优势的关键因素。',
   'Q16': '公司长期合作的外部服务商情况',
-  'Q17': '与知名金融机构合作产品规模、成立时间等'
+  'Q17': '与知名金融机构合作产品规模、成立时间等',
+  'Q18': '公司内部的投资风险管理方法',
+  'Q19': '公司投资风险控制方法的主要特点',
+  'Q20': '公司如何控制产品的下行风险'
 }
+
 export default {
   name: 'UsrAllReportsAdmin',
   // eslint-disable-next-line vue/no-unused-components
@@ -144,6 +142,7 @@ export default {
         case 'markdown-editor':
           realIs = 'markdown-editor'
           break
+        case 'fixed-table':
         case 'dynamic-table':
           realIs = 'dynamic-table'
           break
@@ -171,6 +170,7 @@ export default {
       currentStep: 1,
       currentStepData: {},
       // 增加的模板对象
+      currentDataSet: {},
       comstandardinfo: {
         'ticket': 'FA02-C032-26372-04D1A',
         'size': 6,
@@ -486,6 +486,70 @@ export default {
           }]
         }]
       },
+      riskcontrol: {
+        'ticket': 'FA02-C032-26372-04D1A',
+        'size': 2,
+        'data': [{
+          'step': 1,
+          'title': '机构风险控制',
+          'qList': [{
+            'q': 'Q18',
+            'tg': 'interInvestRiskControl',
+            'is': 'fixed-table',
+            'fixed': true,
+            'data': [{
+              'point': 'Q18_1',
+              'detailDesc': ''
+            }, {
+              'point': 'Q18_2',
+              'detailDesc': ''
+            }, {
+              'point': 'Q18_3',
+              'detailDesc': ''
+            }, {
+              'point': 'Q18_4',
+              'detailDesc': ''
+            }, {
+              'point': 'Q18_5',
+              'detailDesc': ''
+            }, {
+              'point': 'Q18_6',
+              'detailDesc': ''
+            }, {
+              'point': 'Q18_7',
+              'detailDesc': ''
+            }, {
+              'point': 'Q18_8',
+              'detailDesc': ''
+            }],
+            'dataHead': [{
+              'name': 'point',
+              'label': '要点',
+              'columnWidth': '250px',
+              'isEditable': false
+            }, {
+              'name': 'detailDesc',
+              'label': '详细描述',
+              'columnWidth': '250px',
+              'viewas': 'pre'
+            }]
+          }]
+        }, {
+          'step': 2,
+          'title': '机构风险控制',
+          'qList': [{
+            'q': 'Q19',
+            'tg': 'riskcontrolfeature',
+            'is': 'input',
+            'data': ''
+          }, {
+            'q': 'Q20',
+            'tg': 'downsideriskcontrol',
+            'is': 'input',
+            'data': ''
+          }]
+        }]
+      },
       reports: {},
       // end
       tableKey: 0,
@@ -526,13 +590,25 @@ export default {
         title: [{ required: true, message: 'title is required', trigger: 'blur' }]
       },
       downloadLoading: false
-
     }
   },
   created() {
     this.getList()
   },
   methods: {
+    customContentWrapper(data) {
+      const wrapMap = {
+        'Q18_1': '投资风险的管理流程',
+        'Q18_2': '控制投资风险的量化工具及监控指标',
+        'Q18_3': '风险监控系统或软件',
+        'Q18_4': '投资组合是如何做风险对冲的？\n对风险对冲的动态调整频率是多少？',
+        'Q18_5': '描述一下杠杆使用的原则，以及在不同市场周期如何管理杠杆水平？',
+        'Q18_6': '投资组合的分散化程度？',
+        'Q18_7': '如何控制投资组合之间的相关性？如何处理不同产品／投资组合间的公平交易问题？',
+        'Q18_8': '公司如何保证流动性（赎回、头寸流动性）？如何衡量头寸的最低流动性需求？'
+      }
+      return wrapMap[data] || data
+    },
     handlePreviousStep() {
       // eslint-disable-next-line eqeqeq
       if (this.currentStep == 1) {
@@ -544,7 +620,7 @@ export default {
     },
     handleNextStep() {
       // eslint-disable-next-line eqeqeq
-      if (this.currentStep == this.comstandardinfo.data.length) {
+      if (this.currentStep == this.currentDataSet.data.length) {
         return
       } else {
         this.currentStep += 1
@@ -552,7 +628,7 @@ export default {
       }
     },
     getXstep(stepIndex) {
-      const dataArr = this.comstandardinfo.data
+      const dataArr = this.currentDataSet.data
       // eslint-disable-next-line eqeqeq
       return dataArr.filter(step => step.step == stepIndex)[0]
     },
@@ -636,6 +712,29 @@ export default {
     },
 
     handleUpdate(row) {
+      this.currentStep = 1
+      let flag = false
+      switch (row.title) {
+        case '公司情况':
+          this.currentDataSet = this.comstandardinfo
+          flag = true
+          break
+        case '投资分析':
+          break
+        case '风险控制':
+          flag = true
+          this.currentDataSet = this.riskcontrol
+          break
+        case '历史业绩':
+          break
+        case '资料清单':
+          break
+        default:
+          break
+      }
+      if (!flag) {
+        return
+      }
       this.currentStepData = this.getXstep(this.currentStep)
       this.dialogFormVisible = true
       this.$nextTick(() => {
