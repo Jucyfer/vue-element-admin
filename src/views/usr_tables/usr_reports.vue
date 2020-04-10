@@ -60,7 +60,7 @@
         style="width: 90%; margin-left:50px;margin-right: 50px"
       >
         <el-form-item v-for="quest in currentStepData.qList" :key="quest.q" :label="quest.q | questFilter" :prop="quest.tg">
-          <component :is="quest.is | componentFilter" v-model="quest.data" :type="quest.is | inpuTypeFilter" :column-meta="quest.dataHead" :options="{hideModeSwitch:true,previewStyle:'tab'}" mode="wysiwyg" :custom-options="{fixed:quest.fixed,customContentWrapper:customContentWrapper.bind(this)}" />
+          <component :is="quest.is | componentFilter" v-model="quest.data" :type="quest.is | inpuTypeFilter" :column-meta="quest.dataHead" :options="{hideModeSwitch:true,previewStyle:'tab'}" mode="wysiwyg" :custom-options="{fixed:quest.fixed,customContentWrapper:customContentWrapper.bind(this),globalEditType:quest.editType}" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -121,7 +121,12 @@ const qMap = {
   'Q17': '与知名金融机构合作产品规模、成立时间等',
   'Q18': '公司内部的投资风险管理方法',
   'Q19': '公司投资风险控制方法的主要特点',
-  'Q20': '公司如何控制产品的下行风险'
+  'Q20': '公司如何控制产品的下行风险',
+  'Q21': '公司(或主要投资经理在其他工作单位)曾管理过的产品概况(包括产品主要针对的市场、投资标的(股票、期货、债券等)、主要策略、投资经理、与目前准备合作的新产品的相关性)',
+  'Q22': '公司是否有公开的产品信息披露通道，若有，请说明哪些通道;公司是否定时更新产品信息',
+  'Q23': '公司核心管理团队从业期间所获奖励，仅参考证监会及证券业协会认可的评估机构所颁发奖项',
+  'Q24': '公司管理产品在行业内同策略地位',
+  'Q25': '核心管理团队在本公司所管理产品在行业内相同策略排名情况，附上排名依据/标准'
 }
 
 export default {
@@ -550,6 +555,87 @@ export default {
           }]
         }]
       },
+      performanceXreward: {
+        'ticket': 'FA02-C032-26372-04D1A',
+        'size': 3,
+        'data': [{
+          'step': 1,
+          'title': '实盘业绩',
+          'qList': [{
+            'q': 'Q21',
+            'tg': 'fundperform',
+            'is': 'dynamic-table',
+            'editType':'input',
+            'data': [{
+              'sname': '',
+              'sid': '',
+              'sfoundation': '',
+              'status': '',
+              'strategy': '',
+              'smanager': '',
+              'spertinence': '',
+              'isahead': '',
+              'aheadreason': ''
+            }],
+            'dataHead': [{
+              'name': 'sname',
+              'label': '产品名称'
+            }, {
+              'name': 'sid',
+              'label': '备案编号'
+            }, {
+              'name': 'sfoundation',
+              'label': '成立日期'
+            }, {
+              'name': 'status',
+              'label': '存续状况'
+            }, {
+              'name': 'strategy',
+              'label': '主要策略'
+            }, {
+              'name': 'smanager',
+              'label': '基金经理'
+            }, {
+              'name': 'spertinence',
+              'label': '与新产品的相关性'
+            }, {
+              'name': 'isahead',
+              'label': '是否提前清盘'
+            }, {
+              'name': 'aheadreason',
+              'label': '清盘原因'
+            }]
+          }]
+        }, {
+          'step': 2,
+          'title': '信息披露',
+          'qList': [{
+            'q': 'Q22',
+            'tg': 'disclosure',
+            'is': 'input',
+            'data': ''
+          }]
+        }, {
+          'step': 3,
+          'title': '所获奖励',
+          'qList': [{
+            'q': 'Q23',
+            'tg': 'trustedawards',
+            'is': 'input',
+            'data': ''
+          }, {
+            'q': 'Q24',
+            'tg': 'productpos',
+            'is': 'input',
+            'data': ''
+          }, {
+            'q': 'Q25',
+            'tg': 'teamranking',
+            'is': 'input',
+            'data': ''
+          }]
+        }]
+      },
       reports: {},
       // end
       tableKey: 0,
@@ -662,7 +748,7 @@ export default {
         'status': '未填写'
       }, {
         'id': 4,
-        'title': '历史业绩',
+        'title': '业绩、信息披露及所获奖励',
         'ticket': 'FA02-C032-26372-04D1A',
         'status': '未填写'
       }, {
@@ -722,10 +808,12 @@ export default {
         case '投资分析':
           break
         case '风险控制':
-          flag = true
           this.currentDataSet = this.riskcontrol
+          flag = true
           break
-        case '历史业绩':
+        case '业绩、信息披露及所获奖励':
+          this.currentDataSet = this.performanceXreward
+          flag = true
           break
         case '资料清单':
           break
