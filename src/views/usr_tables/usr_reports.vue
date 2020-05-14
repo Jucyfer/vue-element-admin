@@ -51,7 +51,12 @@
     </el-table>
 
     <!--浮出的对话框-->
-    <el-dialog :title="currentStepData['title']" :visible.sync="dialogFormVisible" width="80%" :close-on-click-modal="false">
+    <el-dialog
+      :title="currentStepData['title']"
+      :visible.sync="dialogFormVisible"
+      width="80%"
+      :close-on-click-modal="false"
+    >
       <el-form
         ref="dataForm"
         :rules="rules"
@@ -59,8 +64,23 @@
         label-position="top"
         style="width: 90%; margin-left:50px;margin-right: 50px"
       >
-        <el-form-item v-for="quest in currentStepData.qList" :key="quest.q" :label="quest.q | questFilter" :prop="quest.tg">
-          <component :is="quest.is | componentFilter" v-model="quest.data" :type="quest.is | inpuTypeFilter" :column-meta="quest.dataHead" :options="{hideModeSwitch:true,previewStyle:'tab'}" mode="wysiwyg" :custom-options="{fixed:quest.fixed,customContentWrapper:customContentWrapper.bind(this),globalEditType:quest.editType}" />
+        <el-form-item
+          v-for="quest in currentStepData.qList"
+          v-if="isQuestionVisible(quest)"
+          :key="quest.q"
+          :label="getCNTag(quest.q)"
+        >
+          <component
+            :is="extractMeta(quest.q, 'is') | componentFilter"
+            v-model="quest.data"
+            :type="extractMeta(quest.q, 'is') | inpuTypeFilter"
+            :column-meta="extractMeta(quest.q, 'dataHead')"
+            :options="extractMeta(quest.q, 'is') =='markdown-editor'?{hideModeSwitch:true,previewStyle:'tab'}:cascadeOptions"
+            mode="wysiwyg"
+            :props="{multiple:true,emitPath:false,expandTrigger:'hover'}"
+            :custom-options="{fixed:extractMeta(quest.q,'fixed'),customContentWrapper:customContentWrapper,globalEditType:extractMeta(quest.q,'editType')}"
+            @change="listenChange(quest.data)"
+          />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -101,33 +121,6 @@ const calendarTypeOptions = [
 //   acc[cur.key] = cur.display_name
 //   return acc
 // }, {})
-const qMap = {
-  'Q1': '公司简介（公司历史沿革、业务概况、经营理念等）',
-  'Q2': '公司每年向基金业协会报送经会计师事务所审计的年度财务报告和所管理私募基金年度投资运作基本情况',
-  'Q3': '公司的组织架构图',
-  'Q4': '公司的组织架构（各部门职能及负责人信息）',
-  'Q5': '公司股权结构',
-  'Q6': '公司的专业团队规模',
-  'Q7': '关键岗位人才人员介绍(例如投资总监、基金经理、研究总监、量化总监、风控总监、市场总监等，以各公司的实际情况为准)的姓名、职位职务、进入本公司的时间、教育背景、之前的工作履历、投资历史及主要业绩(例如曾管理的产品数目、资产规模、所管理的各支产品的业绩情况等信息)',
-  'Q8': '团队稳定性',
-  'Q9': '介绍公司对员工的考核标准、收入结构以及激励机制',
-  'Q10': '公司的运营风险管理框架，以及如何识别、评估、监控和控制运营风险',
-  'Q11': '公司的内部合规管理方法',
-  'Q12': '公司是否拥有自行研发或者使用标准化IT产品？',
-  'Q13': 'IT系统服务器的托管方式(是托管在自有机房还是托管机房)，IT系统采用的编程语言，以及敏感数据和关键系统的保存与灾备机制(如何应对电源、电脑软、硬件系统崩溃或网络通讯中断等突发事件)',
-  'Q14': '公司储存数据的方式、数据库架构以及数据的来源',
-  'Q15': '请说明公司整体的优势和劣势是什么，以及维持优势的关键因素。',
-  'Q16': '公司长期合作的外部服务商情况',
-  'Q17': '与知名金融机构合作产品规模、成立时间等',
-  'Q18': '公司内部的投资风险管理方法',
-  'Q19': '公司投资风险控制方法的主要特点',
-  'Q20': '公司如何控制产品的下行风险',
-  'Q21': '公司(或主要投资经理在其他工作单位)曾管理过的产品概况(包括产品主要针对的市场、投资标的(股票、期货、债券等)、主要策略、投资经理、与目前准备合作的新产品的相关性)',
-  'Q22': '公司是否有公开的产品信息披露通道，若有，请说明哪些通道;公司是否定时更新产品信息',
-  'Q23': '公司核心管理团队从业期间所获奖励，仅参考证监会及证券业协会认可的评估机构所颁发奖项',
-  'Q24': '公司管理产品在行业内同策略地位',
-  'Q25': '核心管理团队在本公司所管理产品在行业内相同策略排名情况，附上排名依据/标准'
-}
 
 export default {
   name: 'UsrAllReportsAdmin',
@@ -135,9 +128,6 @@ export default {
   components: { MarkdownEditor, DynamicTable },
   directives: { waves },
   filters: {
-    questFilter(questId) {
-      return qMap[questId]
-    },
     componentFilter(isStr) {
       let realIs = ''
       switch (isStr) {
@@ -150,6 +140,9 @@ export default {
         case 'fixed-table':
         case 'dynamic-table':
           realIs = 'dynamic-table'
+          break
+        case 'cascade':
+          realIs = 'el-cascader-panel'
           break
         default:
           realIs = 'el-input'
@@ -172,470 +165,97 @@ export default {
   data() {
     return {
       // 对话框的标记步骤
+      // ...mapState(['questMetaMap', 'questMap']),
       currentStep: 1,
       currentStepData: {},
+      currentTicket: '',
       // 增加的模板对象
       currentDataSet: {},
-      comstandardinfo: {
-        'ticket': 'FA02-C032-26372-04D1A',
-        'size': 6,
-        'data': [{
-          'step': 1,
-          'title': '公司情况及基本资料',
-          'qList': [{
-            'q': 'Q1',
-            'tg': 'orgdescription',
-            'is': 'input',
-            'data': ''
-          }, {
-            'q': 'Q2',
-            'tg': 'orgfinancialstatus',
-            'is': 'input',
-            'data': ''
-          }, {
-            'q': 'Q3',
-            'tg': 'organizestructimage',
-            'is': 'markdown-editor',
-            'data': ''
-          }, {
-            'q': 'Q4',
-            'tg': 'organizestruct',
-            'is': 'dynamic-table',
-            'data': [{
-              'depart': '',
-              'head': '',
-              'count': '',
-              'function': ''
-            }, {
-              'depart': '',
-              'head': '',
-              'count': '',
-              'function': ''
-            }, {
-              'depart': '',
-              'head': '',
-              'count': '',
-              'function': ''
-            }],
-            'dataHead': [{
-              'name': 'depart',
-              'label': '部门名称'
-            }, {
-              'name': 'head',
-              'label': '负责人'
-            }, {
-              'name': 'count',
-              'label': '员工人数'
-            }, {
-              'name': 'function',
-              'label': '职能'
-            }]
-          }, {
-            'q': 'Q5',
-            'tg': 'equitystructure',
-            'is': 'dynamic-table',
-            'data': [{
-              'name': '',
-              'amt': 100,
-              'percent': 100.0
-            }, {
-              'name': '',
-              'amt': 100,
-              'percent': 100.0
-            }, {
-              'name': '',
-              'amt': 100,
-              'percent': 100.0
-            }],
-            'dataHead': [{
-              'name': 'name',
-              'label': '股东'
-            }, {
-              'name': 'amt',
-              'label': '股本（万元）'
-            }, {
-              'name': 'percent',
-              'label': '持股比例'
-            }]
-          }]
+      // 关于策略选择的候选项
+      cascadeOptions: [{
+        'value': 'stocks',
+        'label': '股票类',
+        'children': [{
+          'value': 'equityLong',
+          'label': '股票多头'
         }, {
-          'step': 2,
-          'title': '专业团队',
-          'qList': [{
-            'q': 'Q6',
-            'tg': 'teamtrace',
-            'is': 'dynamic-table',
-            'data': [{
-              'annual': '',
-              'size': '',
-              'changeDescription': ''
-            }, {
-              'annual': '',
-              'size': '',
-              'changeDescription': ''
-            }, {
-              'annual': '',
-              'size': '',
-              'changeDescription': ''
-            }],
-            'dataHead': [{
-              'name': 'annual',
-              'label': '年度'
-            }, {
-              'name': 'size',
-              'label': '团队员工数目'
-            }, {
-              'name': 'changeDescription',
-              'label': '关键人员变动情况说明'
-            }]
-          }, {
-            'q': 'Q7',
-            'tg': 'keystaff',
-            'is': 'dynamic-table',
-            'data': [{
-              'name': '',
-              'pos': '',
-              'entrydate': '',
-              'edu': '',
-              'career': ''
-            },
-            {
-              'name': '',
-              'pos': '',
-              'entrydate': '',
-              'edu': '',
-              'career': ''
-            },
-            {
-              'name': '',
-              'pos': '',
-              'entrydate': '',
-              'edu': '',
-              'career': ''
-            }],
-            'dataHead': [{
-              'name': 'name',
-              'label': '姓名'
-            },
-            {
-              'name': 'pos',
-              'label': '职位'
-            },
-            {
-              'name': 'entrydate',
-              'label': '入职日期'
-            },
-            {
-              'name': 'edu',
-              'label': '教育背景'
-            },
-            {
-              'name': 'career',
-              'label': '职业经历'
-            }]
-          }, {
-            'q': 'Q8',
-            'tg': 'teamstability',
-            'is': 'dynamic-table',
-            'data': [{
-              'pos': '',
-              'curr': '',
-              'decrease': '',
-              'increase': '',
-              'depercent1yr': '',
-              'decincper': ''
-            },
-            {
-              'pos': '',
-              'curr': '',
-              'decrease': '',
-              'increase': '',
-              'depercent1yr': '',
-              'decincper': ''
-            },
-            {
-              'pos': '',
-              'curr': '',
-              'decrease': '',
-              'increase': '',
-              'depercent1yr': '',
-              'decincper': ''
-            }],
-            'dataHead': [{
-              'name': 'pos',
-              'label': '岗位'
-            },
-            {
-              'name': 'curr',
-              'label': '目前人数'
-            },
-            {
-              'name': 'decrease',
-              'label': '离职人数'
-            },
-            {
-              'name': 'increase',
-              'label': '新增人数'
-            },
-            {
-              'name': 'depercent1yr',
-              'label': '近一年离职率'
-            },
-            {
-              'name': 'decincper',
-              'label': '离职及新增人员变动百分比'
-            }]
-          }, {
-            'q': 'Q9',
-            'tg': 'kpidesc',
-            'is': 'input',
-            'data': ''
-          }]
+          'value': 'alpha',
+          'label': 'Alpha'
         }, {
-          'step': 3,
-          'title': '公司运营管理',
-          'qList': [{
-            'q': 'Q10',
-            'tg': 'riskframework',
-            'is': 'input',
-            'data': ''
-          }, {
-            'q': 'Q11',
-            'tg': 'comlianceregulation',
-            'is': 'input',
-            'data': ''
-          }, {
-            'q': 'Q12',
-            'tg': 'hasStandarditproduct',
-            'is': 'option',
-            'data': ''
-          }, {
-            'q': 'Q13',
-            'tg': 'itproductdetail',
-            'is': 'input',
-            'data': ''
-          }, {
-            'q': 'Q14',
-            'tg': 'datastorelifecycle',
-            'is': 'input',
-            'data': ''
-          }]
+          'value': 'augmentationIndex',
+          'label': '指数增强'
         }, {
-          'step': 4,
-          'title': '公司优劣势',
-          'qList': [{
-            'q': 'Q15',
-            'tg': 'swot',
-            'is': 'input',
-            'data': ''
-          }]
+          'value': 'dayT0',
+          'label': '日内T0'
         }, {
-          'step': 5,
-          'title': '外部服务商',
-          'qList': [{
-            'q': 'Q16',
-            'tg': 'externalprovider',
-            'is': 'dynamic-table',
-            'data': [{
-              'type': '',
-              'name': '',
-              'interface': '',
-              'contact': ''
-            }],
-            'dataHead': [{
-              'name': 'type',
-              'label': '服务类型'
-            },
-            {
-              'name': 'name',
-              'label': '服务商名称'
-            },
-            {
-              'name': 'interface',
-              'label': '服务商联系人'
-            },
-            {
-              'name': 'contact',
-              'label': '服务商联系方式'
-            }]
-          }]
+          'value': 'straddle',
+          'label': '套利'
         }, {
-          'step': 6,
-          'title': '与知名金融机构合作情况',
-          'qList': [{
-            'q': 'Q17',
-            'tg': 'cooperationdetail',
-            'is': 'dynamic-table',
-            'data': [{
-              'financename': '',
-              'productname': '',
-              'productscale': '',
-              'foundat': ''
-            }],
-            'dataHead': [{
-              'name': 'financename',
-              'label': '金融机构名称'
-            },
-            {
-              'name': 'productname',
-              'label': '合作产品名称'
-            },
-            {
-              'name': 'productscale',
-              'label': '合作产品规模'
-            },
-            {
-              'name': 'foundat',
-              'label': '产品成立时间'
-            }]
-          }]
+          'value': 'other_stock',
+          'label': '其他'
         }]
-      },
-      riskcontrol: {
-        'ticket': 'FA02-C032-26372-04D1A',
-        'size': 2,
-        'data': [{
-          'step': 1,
-          'title': '机构风险控制',
-          'qList': [{
-            'q': 'Q18',
-            'tg': 'interInvestRiskControl',
-            'is': 'fixed-table',
-            'fixed': true,
-            'data': [{
-              'point': 'Q18_1',
-              'detailDesc': ''
-            }, {
-              'point': 'Q18_2',
-              'detailDesc': ''
-            }, {
-              'point': 'Q18_3',
-              'detailDesc': ''
-            }, {
-              'point': 'Q18_4',
-              'detailDesc': ''
-            }, {
-              'point': 'Q18_5',
-              'detailDesc': ''
-            }, {
-              'point': 'Q18_6',
-              'detailDesc': ''
-            }, {
-              'point': 'Q18_7',
-              'detailDesc': ''
-            }, {
-              'point': 'Q18_8',
-              'detailDesc': ''
-            }],
-            'dataHead': [{
-              'name': 'point',
-              'label': '要点',
-              'columnWidth': '250px',
-              'isEditable': false
-            }, {
-              'name': 'detailDesc',
-              'label': '详细描述',
-              'columnWidth': '250px',
-              'viewas': 'pre'
-            }]
+      }, {
+        'value': 'futures',
+        'label': '期货类',
+        'children': [{
+          'value': 'fundamentals',
+          'label': '基本面驱动'
+        }, {
+          'value': 'logic',
+          'label': '基于逻辑',
+          'children': [{
+            'value': 'traditionTrend',
+            'label': '传统趋势'
+          }, {
+            'value': 'crossSection',
+            'label': '截面策略'
+          }, {
+            'value': 'publicSentiment',
+            'label': '舆情策略'
+          }, {
+            'value': 'inDay',
+            'label': '日内策略'
+          }, {
+            'value': 'multiFactor',
+            'label': '多因子'
           }]
         }, {
-          'step': 2,
-          'title': '机构风险控制',
-          'qList': [{
-            'q': 'Q19',
-            'tg': 'riskcontrolfeature',
-            'is': 'input',
-            'data': ''
-          }, {
-            'q': 'Q20',
-            'tg': 'downsideriskcontrol',
-            'is': 'input',
-            'data': ''
-          }]
+          'value': 'machineLearning',
+          'label': '机器学习'
+        }, {
+          'value': 'hiFreqStrategy',
+          'label': '高频策略'
+        }, {
+          'value': 'arbitrage',
+          'label': '套利'
+        }, {
+          'value': 'other_future',
+          'label': '其他'
         }]
-      },
-      performanceXreward: {
-        'ticket': 'FA02-C032-26372-04D1A',
-        'size': 3,
-        'data': [{
-          'step': 1,
-          'title': '实盘业绩',
-          'qList': [{
-            'q': 'Q21',
-            'tg': 'fundperform',
-            'is': 'dynamic-table',
-            'editType':'input',
-            'data': [{
-              'sname': '',
-              'sid': '',
-              'sfoundation': '',
-              'status': '',
-              'strategy': '',
-              'smanager': '',
-              'spertinence': '',
-              'isahead': '',
-              'aheadreason': ''
-            }],
-            'dataHead': [{
-              'name': 'sname',
-              'label': '产品名称'
-            }, {
-              'name': 'sid',
-              'label': '备案编号'
-            }, {
-              'name': 'sfoundation',
-              'label': '成立日期'
-            }, {
-              'name': 'status',
-              'label': '存续状况'
-            }, {
-              'name': 'strategy',
-              'label': '主要策略'
-            }, {
-              'name': 'smanager',
-              'label': '基金经理'
-            }, {
-              'name': 'spertinence',
-              'label': '与新产品的相关性'
-            }, {
-              'name': 'isahead',
-              'label': '是否提前清盘'
-            }, {
-              'name': 'aheadreason',
-              'label': '清盘原因'
-            }]
-          }]
+      }, {
+        'value': 'options',
+        'label': '期权类'
+      }, {
+        'value': 'bonds',
+        'label': '债券类'
+      }, {
+        'value': 'macroHedges',
+        'label': '宏观对冲类'
+      }, {
+        'value': 'others',
+        'label': '其他'
+      }, {
+        'value': 'combine',
+        'label': '组合基金类',
+        'children': [{
+          'value': 'fof',
+          'label': 'FOF'
         }, {
-          'step': 2,
-          'title': '信息披露',
-          'qList': [{
-            'q': 'Q22',
-            'tg': 'disclosure',
-            'is': 'input',
-            'data': ''
-          }]
-        }, {
-          'step': 3,
-          'title': '所获奖励',
-          'qList': [{
-            'q': 'Q23',
-            'tg': 'trustedawards',
-            'is': 'input',
-            'data': ''
-          }, {
-            'q': 'Q24',
-            'tg': 'productpos',
-            'is': 'input',
-            'data': ''
-          }, {
-            'q': 'Q25',
-            'tg': 'teamranking',
-            'is': 'input',
-            'data': ''
-          }]
+          'value': 'mom',
+          'label': 'MOM'
         }]
-      },
+      }],
+      selectedCascade: [],
       reports: {},
       // end
       tableKey: 0,
@@ -678,21 +298,24 @@ export default {
       downloadLoading: false
     }
   },
-  created() {
+  async created() {
     this.getList()
+    this.$store.dispatch('questCommon/init_quest_CN_Map')
+    this.$store.dispatch('questCommon/init_quest_Meta_Map')
   },
   methods: {
-    customContentWrapper(data) {
-      const wrapMap = {
-        'Q18_1': '投资风险的管理流程',
-        'Q18_2': '控制投资风险的量化工具及监控指标',
-        'Q18_3': '风险监控系统或软件',
-        'Q18_4': '投资组合是如何做风险对冲的？\n对风险对冲的动态调整频率是多少？',
-        'Q18_5': '描述一下杠杆使用的原则，以及在不同市场周期如何管理杠杆水平？',
-        'Q18_6': '投资组合的分散化程度？',
-        'Q18_7': '如何控制投资组合之间的相关性？如何处理不同产品／投资组合间的公平交易问题？',
-        'Q18_8': '公司如何保证流动性（赎回、头寸流动性）？如何衡量头寸的最低流动性需求？'
+    isQuestionVisible(question) {
+      const q = question.q
+      const qis = this.extractMeta(question.q, 'is')
+      const qcondition = this.extractMeta(question.q, 'conditions')
+      if (qis !== 'fixed-table') {
+        return true
+      } else {
+        return qcondition ? (this.selectedCascade.indexOf(qcondition) + 1) : true
       }
+    },
+    customContentWrapper(data) {
+      const wrapMap = this.$store.getters.questMap
       return wrapMap[data] || data
     },
     handlePreviousStep() {
@@ -704,11 +327,22 @@ export default {
         this.currentStepData = this.getXstep(this.currentStep)
       }
     },
-    handleNextStep() {
+    // todo :这个地方有bug,当重新加载的时候没有双向同步,导致问题表格消失
+    listenChange(data) {
+      this.selectedCascade = data
+      console.log(data)
+    },
+    async handleNextStep() {
       // eslint-disable-next-line eqeqeq
       if (this.currentStep == this.currentDataSet.data.length) {
         return
       } else {
+        const { data: resp } = this.$axios.post('/secure/invest/parts/' + this.currentTicket + '?userid=' + this.$store.getters.userid, this.currentStepData.qList)
+        if (!resp) {
+          this.$message.error('保存失败！！！！请重新登录！！！')
+        } else {
+          this.$message.success('保存成功！')
+        }
         this.currentStep += 1
         this.currentStepData = this.getXstep(this.currentStep)
       }
@@ -718,45 +352,37 @@ export default {
       // eslint-disable-next-line eqeqeq
       return dataArr.filter(step => step.step == stepIndex)[0]
     },
-    getList() {
-      // this.listLoading = true
-      // fetchList(this.listQuery).then(response => {
-      //   this.list = response.data.items
-      //   console.log(JSON.stringify(this.list))
-      //   this.total = response.data.total
-      //
-      //   // Just to simulate the time of the request
-      //   setTimeout(() => {
-      //     this.listLoading = false
-      //   }, 1.5 * 1000)
-      // })
+    async getList() {
       this.listLoading = true
-      this.list = [{
-        'id': 1,
-        'title': '公司情况',
-        'ticket': 'FA02-C032-26372-04D1A',
-        'status': '未填写'
-      }, {
-        'id': 2,
-        'title': '投资分析',
-        'ticket': 'FA02-C032-26372-04D1A',
-        'status': '未填写'
-      }, {
-        'id': 3,
-        'title': '风险控制',
-        'ticket': 'FA02-C032-26372-04D1A',
-        'status': '未填写'
-      }, {
-        'id': 4,
-        'title': '业绩、信息披露及所获奖励',
-        'ticket': 'FA02-C032-26372-04D1A',
-        'status': '未填写'
-      }, {
-        'id': 5,
-        'title': '资料清单',
-        'ticket': 'FA02-C032-26372-04D1A',
-        'status': '未填写'
-      }]
+      const { data: resp } = await this.$axios.get('/secure/invest/indexes?userid=' + this.$store.getters.userid)
+      console.log(resp)
+      this.list = resp
+      //     [{
+      //   'id': 1,
+      //   'title': '公司情况',
+      //   'ticket': 'AM78YLJM-QV91LQO4-28E0I2H6-2MLTDWYD',
+      //   'status': '未填写'
+      // }, {
+      //   'id': 2,
+      //   'title': '投资分析',
+      //   'ticket': '89XBGAT7-TPH009XU-CX71JSP1-YK5UGOL4',
+      //   'status': '未填写'
+      // }, {
+      //   'id': 3,
+      //   'title': '风险控制',
+      //   'ticket': 'SW4K815K-IUGUAIHT-L365HAG9-EXYA3UGQ',
+      //   'status': '未填写'
+      // }, {
+      //   'id': 4,
+      //   'title': '业绩、信息披露及所获奖励',
+      //   'ticket': '6HY1N8KX-KHSZ88Q5-W1Q2OCMK-P78OTZO8',
+      //   'status': '未填写'
+      // }, {
+      //   'id': 5,
+      //   'title': '资料清单',
+      //   'ticket': 'W9JIC2IR-EOKAMY2I-VBLD5HMB-WZUOH6QH',
+      //   'status': '未填写'
+      // }]
       this.listLoading = false
       this.total = this.listLoading.length
     },
@@ -796,23 +422,32 @@ export default {
         type: ''
       }
     },
-
-    handleUpdate(row) {
+    async handleUpdate(row) {
+      this.currentTicket = row.ticket
+      const { data: resp } = await this.$axios.get('/secure/invest/parts/' + row.ticket + '?userid=' + this.$store.getters.userid)
+      console.log(resp)
+      if (!resp) {
+        this.$message.error('操作失败！！！！请重新登录！！！')
+      } else {
+        this.$message.success('操作成功！')
+      }
       this.currentStep = 1
       let flag = false
       switch (row.title) {
         case '公司情况':
-          this.currentDataSet = this.comstandardinfo
+          // this.currentDataSet = this.comstandardinfo
           flag = true
           break
         case '投资分析':
+          // this.currentDataSet = this.investAnalize
+          flag = true
           break
         case '风险控制':
-          this.currentDataSet = this.riskcontrol
+          // this.currentDataSet = this.riskcontrol
           flag = true
           break
         case '业绩、信息披露及所获奖励':
-          this.currentDataSet = this.performanceXreward
+          // this.currentDataSet = this.performanceXreward
           flag = true
           break
         case '资料清单':
@@ -823,13 +458,20 @@ export default {
       if (!flag) {
         return
       }
+      this.currentDataSet = resp
       this.currentStepData = this.getXstep(this.currentStep)
       this.dialogFormVisible = true
-      this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
-      })
+      // this.$nextTick(() => {
+      //   this.$refs['dataForm'].clearValidate()
+      // })
     },
-    updateData() {
+    async updateData(row) {
+      const { data: resp } = await this.$axios.post('/secure/invest/parts/' + this.currentTicket + '?userid=' + this.$store.getters.userid, this.currentStepData.qList)
+      if (!resp) {
+        this.$message.error('保存失败！！！！请重新登录！！！')
+      } else {
+        this.$message.success('保存成功！')
+      }
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           const tempData = Object.assign({}, this.temp)
@@ -847,6 +489,7 @@ export default {
           // })
         }
       })
+      this.dialogFormVisible = false
     },
     handleDelete(row, index) {
       this.$notify({
@@ -869,6 +512,12 @@ export default {
     },
     debugData(data) {
       console.log(this.markdownContent)
+    },
+    extractMeta(qid, index) {
+      return this.$store.getters.questMetaMap[qid][index]
+    },
+    getCNTag(qid) {
+      return this.$store.getters.questMap[qid] || qid
     }
   }
 }
@@ -884,5 +533,9 @@ export default {
   .progress_style {
     padding-top: 10px;
     padding-bottom: 10px;
+  }
+
+  .el-cascader-menu__wrap {
+    height: 100%
   }
 </style>

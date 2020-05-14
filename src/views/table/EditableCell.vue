@@ -1,13 +1,17 @@
 <template>
   <div>
     <!--    <span v-if="!showEditor" class=".span" @click="showEditor = isEditable">{{ facadeValue | validshow }}</span>-->
-    <component :is="viewas" v-if="!showEditor" class=".span" @click="showEditor = isEditable">{{ facadeValue | validshow }}</component>
+    <el-tooltip placement="top" :disabled="!tipshown" effect="light">
+      <div slot="content">{{ tiptext }}</div>
+      <component :is="viewas" v-if="!showEditor" class=".span" @click="showEditor = isEditable">{{ facadeValue | validshow }}</component>
+    </el-tooltip>
     <el-input
       v-if="showEditor"
       v-model.trim="currentValue"
       v-insertfocus4el
       :type="editType||'text'"
       :autosize="editType=='textarea'"
+      :placeholder="holder"
       @blur="showEditor=false"
       @input="handleInput($event)"
     />
@@ -34,7 +38,28 @@ export default {
       }
     }
   },
-  props: { value: [Number, String, Array, Object], editType: String, editable: Boolean, customContentWrapper: Function, viewas: String },
+  props: {
+    value: [Number, String, Array, Object],
+    editType: String,
+    editable: Boolean,
+    customContentWrapper: Function,
+    viewas: {
+      type: String,
+      default: 'span'
+    },
+    tipshown: {
+      type: Boolean,
+      default: false
+    },
+    tiptext: {
+      type: String,
+      default: '单击文本进行编辑'
+    },
+    holder: {
+      type: String,
+      default: ''
+    }
+  },
   event: ['input'],
   data() {
     return {

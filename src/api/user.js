@@ -1,18 +1,28 @@
 import request from '@/utils/request'
-
-export function login(data) {
+// import axios from 'axios'
+export function getSecureKey() {
   return request({
-    url: '/vue-element-admin/user/login',
-    method: 'post',
-    data
+    url: '/secure/btsafekey',
+    method: 'get'
   })
 }
 
-export function getInfo(token) {
+export function login(data) {
+  // return axios.post('/secure/login', data, { headers: { 'Content-Type': 'text/plain;charset=UTF-8' }})
   return request({
-    url: '/vue-element-admin/user/info',
-    method: 'get',
-    params: { token }
+    // url: '/vue-element-admin/user/login',
+    url: '/secure/login',
+    method: 'post',
+    data,
+    headers: { 'Content-Type': 'text/plain;charset=UTF-8' }
+  })
+}
+
+export function getInfo() {
+  return request({
+    // url: '/vue-element-admin/user/info',
+    url: '/secure/userInfo',
+    method: 'get'
   })
 }
 

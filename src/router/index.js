@@ -5,7 +5,7 @@ Vue.use(Router)
 
 /* Layout */
 import Layout from '@/layout'
-
+import store from '@/store/index'
 /* Router Modules */
 // import componentsRouter from './modules/components'
 // import chartsRouter from './modules/charts'
@@ -114,6 +114,7 @@ export const constantRoutes = [
       }
     ]
   },
+
   // {
   //   path: '/documentation',
   //   component: Layout,
@@ -139,6 +140,7 @@ export const constantRoutes = [
   //     }
   //   ]
   // },
+
   // 这里有一个设置了hidden的内容，其实就是单击用户头像之后弹出来的页面
   {
     path: '/profile',

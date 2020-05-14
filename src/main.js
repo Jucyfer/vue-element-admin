@@ -18,7 +18,8 @@ import './permission' // permission control
 import './utils/error-log' // error log
 
 import * as filters from './filters' // global filters
-
+import axios from 'axios'
+import _ from 'lodash'
 /**
  * If you don't want to use mock-server
  * you want to use MockJs for mock api
@@ -42,7 +43,15 @@ Object.keys(filters).forEach(key => {
 })
 
 Vue.config.productionTip = false
-
+Vue.prototype.$axios = axios
+Vue.prototype._ = _
+// axios.defaults.baseURL = 'http://127.0.0.1:8080/'
+axios.interceptors.request.use(
+  config => {
+    config.headers.token = Cookies.get('Token')
+    return config
+  }
+)
 new Vue({
   el: '#app',
   router,

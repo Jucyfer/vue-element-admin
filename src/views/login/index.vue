@@ -6,13 +6,13 @@
         <h3 class="title">Login Form</h3>
       </div>
 
-      <el-form-item prop="username">
+      <el-form-item prop="name">
         <span class="svg-container">
           <svg-icon icon-class="user" />
         </span>
         <el-input
-          ref="username"
-          v-model="loginForm.username"
+          ref="name"
+          v-model="loginForm.name"
           placeholder="Username"
           name="username"
           type="text"
@@ -22,14 +22,14 @@
       </el-form-item>
 
       <el-tooltip v-model="capsTooltip" content="Caps lock is On" placement="right" manual>
-        <el-form-item prop="password">
+        <el-form-item prop="auth">
           <span class="svg-container">
             <svg-icon icon-class="password" />
           </span>
           <el-input
             :key="passwordType"
-            ref="password"
-            v-model="loginForm.password"
+            ref="auth"
+            v-model="loginForm.auth"
             :type="passwordType"
             placeholder="Password"
             name="password"
@@ -90,19 +90,20 @@ export default {
     }
     const validatePassword = (rule, value, callback) => {
       if (value.length < 6) {
-        callback(new Error('The password can not be less than 6 digits'))
+        // callback(new Error('The password can not be less than 6 digits'))
+        callback()
       } else {
         callback()
       }
     }
     return {
       loginForm: {
-        username: 'admin',
-        password: '111111'
+        name: 'test',
+        auth: 'test'
       },
       loginRules: {
-        username: [{ required: true, trigger: 'blur', validator: validateUsername }],
-        password: [{ required: true, trigger: 'blur', validator: validatePassword }]
+        name: [{ required: true, trigger: 'blur', validator: validateUsername }],
+        auth: [{ required: true, trigger: 'blur', validator: validatePassword }]
       },
       passwordType: 'password',
       capsTooltip: false,
@@ -158,10 +159,14 @@ export default {
           this.loading = true
           this.$store.dispatch('user/login', this.loginForm)
             .then(() => {
+              console.log(11111)
+              console.log(this.redirect)
+              console.log(this.otherQuery)
               this.$router.push({ path: this.redirect || '/', query: this.otherQuery })
               this.loading = false
             })
             .catch(() => {
+              console.log(22222)
               this.loading = false
             })
         } else {

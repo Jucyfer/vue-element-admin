@@ -16,7 +16,39 @@
         class="tbcol"
       >
         <template slot-scope="{row}">
-          <editable-cell v-model="row[column.name]" :edit-type="column.is||customOptions.globalEditType||'textarea'" :editable="column.isEditable" :customContentWrapper="customOptions.customContentWrapper" :viewas="column.viewas || 'span'" />
+          <editable-cell
+            v-if="(column.is||customOptions.globalEditType)!='select'"
+            v-model="row[column.name]"
+            :edit-type="column.is||customOptions.globalEditType||'input'"
+            :editable="column.isEditable"
+            :custom-content-wrapper="customOptions.customContentWrapper"
+            :viewas="column.viewas"
+            :holder="column.holder"
+            :tipshown="column.hastip"
+            :tiptext="column.tip"
+          />
+          <el-checkbox
+          v-else-if="(column.is || customOptions.globalEditType)=='check'"
+          v-model="row[column.name]"
+          >
+            是/否
+          </el-checkbox>
+
+          <el-select
+            v-else
+            :remote="column.remote"
+            :filterable="column.filterable"
+            :remote-method="(data)=>remoteMethod(data,column)"
+            v-model="row[column.name]"
+            @change="column.options=(column.remote?[]:column.options)"
+          >
+            <el-option
+              v-for="item in column.options"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
         </template>
       </el-table-column>
       <el-table-column v-if="!isFixed" label="动作" width="180" class="tbcol">
@@ -72,6 +104,13 @@ export default {
     },
     handleDelete(index) {
       this.tableData.splice(index, 1)
+    },
+    async remoteMethod(data, column) {
+      console.log(column)
+      const { data: arr } = await this.$axios.get(column.remoteURL)
+      console.log(arr)
+      column.options = arr
+      console.log(column)
     }
   }
 }
