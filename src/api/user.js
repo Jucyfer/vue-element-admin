@@ -63,3 +63,10 @@ export function deleteUser(id) {
   })
 }
 
+export function keepalive(id) {
+  return request({
+    url: '/secure/alive',
+    method: 'post',
+    data: { userid: id }
+  })
+}
