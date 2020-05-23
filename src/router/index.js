@@ -94,7 +94,8 @@ export const constantRoutes = [
     children: [
       {
         path: 'allreports',
-        component: () => import('@/views/usr_tables/usr_all-reports_admin'),
+        // component: () => import('@/views/usr_tables/usr_all-reports_admin'),
+        component: () => import('@/views/usr_tables/usr_all_reports'),
         name: 'AllReports',
         meta: {
           title: '尽调报告管理（审核）',
@@ -429,9 +430,9 @@ export const asyncRoutes = [
   //   ]
   // },
   {
-    path: '/competition',
+    path: '/combinedfund',
     component: Layout,
-    redirect: 'competition',
+    redirect: 'combinedfund',
     // component: () => import('@/views/competition/Competition.vue'),
     // name: 'Competition',
     // meta: { title: '实盘大赛', icon: 'money', noCache: true },
@@ -439,11 +440,44 @@ export const asyncRoutes = [
       {
         path: '',
         component: () => import('@/views/competition/Competition.vue'),
-        name: 'Competition',
-        meta: { title: '实盘大赛', icon: 'money', noCache: true }
+        name: 'combinedfund',
+        meta: { title: '基金总览', icon: 'money', noCache: true }
       }
     ]
   },
+  {
+    path: '/favorites',
+    component: Layout,
+    redirect: 'favorites',
+    // component: () => import('@/views/competition/Competition.vue'),
+    // name: 'Competition',
+    // meta: { title: '实盘大赛', icon: 'money', noCache: true },
+    children: [
+      {
+        path: '',
+        component: () => import('@/views/competition/Competition.vue'),
+        name: 'favorites',
+        meta: { title: '产品收藏夹', icon: 'money', noCache: true }
+      }
+    ]
+  },
+  {
+    path: '/afterinvest',
+    component: Layout,
+    redirect: 'afterinvest',
+    // component: () => import('@/views/competition/Competition.vue'),
+    // name: 'Competition',
+    // meta: { title: '实盘大赛', icon: 'money', noCache: true },
+    children: [
+      {
+        path: '',
+        component: () => import('@/views/competition/Competition.vue'),
+        name: 'afterInvest',
+        meta: { title: '投后管理', icon: 'money', noCache: true }
+      }
+    ]
+  },
+
   {
     path: 'external-anotherlink',
     component: Layout,

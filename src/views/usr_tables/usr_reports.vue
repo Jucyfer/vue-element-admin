@@ -9,15 +9,12 @@
       fit
       highlight-current-row
       style="width: 100%;"
-      @sort-change="sortChange"
     >
       <el-table-column
         label="序号"
         prop="id"
-        sortable="custom"
         align="center"
         width="80"
-        :class-name="getSortClass('id')"
       >
         <template slot-scope="{row}">
           <span>{{ row.id }}</span>
@@ -79,6 +76,7 @@
             mode="wysiwyg"
             :props="{multiple:true,emitPath:false,expandTrigger:'hover'}"
             :custom-options="{fixed:extractMeta(quest.q,'fixed'),customContentWrapper:customContentWrapper,globalEditType:extractMeta(quest.q,'editType')}"
+            :autosize="extractMeta(quest.q,'is')==='input'"
             @change="listenChange(quest.data)"
           />
         </el-form-item>
@@ -108,13 +106,6 @@
 import waves from '@/directive/waves' // waves directive
 import MarkdownEditor from '@/components/MarkdownEditor'
 import DynamicTable from '@/views/table/DynamicTable'
-
-const calendarTypeOptions = [
-  { key: 'CN', display_name: 'China' },
-  { key: 'US', display_name: 'USA' },
-  { key: 'JP', display_name: 'Japan' },
-  { key: 'EU', display_name: 'Eurozone' }
-]
 
 // arr to obj, such as { CN : "China", US : "USA" }
 // const calendarTypeKeyValue = calendarTypeOptions.reduce((acc, cur) => {
@@ -262,34 +253,13 @@ export default {
       list: null,
       total: 0,
       listLoading: true,
-      markdownContent: '12345678',
-      listQuery: {
-        page: 1,
-        limit: 4,
-        importance: undefined,
-        title: undefined,
-        type: undefined,
-        sort: '+id'
-      },
-      calendarTypeOptions,
       statusOptions: ['待审核', '核准', '核拒'],
-      showReviewer: false,
-      temp: {
-        id: undefined,
-        importance: 1,
-        remark: '',
-        timestamp: new Date(),
-        title: '',
-        type: '',
-        status: 'published'
-      },
       dialogFormVisible: false,
       dialogStatus: '',
       textMap: {
         update: 'Edit',
         create: 'Create'
       },
-      pvData: [],
       rules: {
         type: [{ required: true, message: 'type is required', trigger: 'change' }],
         timestamp: [{ type: 'date', required: true, message: 'timestamp is required', trigger: 'change' }],
@@ -337,8 +307,8 @@ export default {
       if (this.currentStep == this.currentDataSet.data.length) {
         return
       } else {
-        const { data: resp } = this.$axios.post('/secure/invest/parts/' + this.currentTicket + '?userid=' + this.$store.getters.userid, this.currentStepData.qList)
-        if (!resp) {
+        const { data: resp } = await this.$axios.post('/secure/invest/parts/' + this.currentTicket + '?userid=' + this.$store.getters.userid, this.currentStepData.qList)
+        if (resp !== 'success') {
           this.$message.error('保存失败！！！！请重新登录！！！')
         } else {
           this.$message.success('保存成功！')
@@ -357,34 +327,7 @@ export default {
       const { data: resp } = await this.$axios.get('/secure/invest/indexes?userid=' + this.$store.getters.userid)
       console.log(resp)
       this.list = resp
-      //     [{
-      //   'id': 1,
-      //   'title': '公司情况',
-      //   'ticket': 'AM78YLJM-QV91LQO4-28E0I2H6-2MLTDWYD',
-      //   'status': '未填写'
-      // }, {
-      //   'id': 2,
-      //   'title': '投资分析',
-      //   'ticket': '89XBGAT7-TPH009XU-CX71JSP1-YK5UGOL4',
-      //   'status': '未填写'
-      // }, {
-      //   'id': 3,
-      //   'title': '风险控制',
-      //   'ticket': 'SW4K815K-IUGUAIHT-L365HAG9-EXYA3UGQ',
-      //   'status': '未填写'
-      // }, {
-      //   'id': 4,
-      //   'title': '业绩、信息披露及所获奖励',
-      //   'ticket': '6HY1N8KX-KHSZ88Q5-W1Q2OCMK-P78OTZO8',
-      //   'status': '未填写'
-      // }, {
-      //   'id': 5,
-      //   'title': '资料清单',
-      //   'ticket': 'W9JIC2IR-EOKAMY2I-VBLD5HMB-WZUOH6QH',
-      //   'status': '未填写'
-      // }]
       this.listLoading = false
-      this.total = this.listLoading.length
     },
     handleFilter() {
       this.listQuery.page = 1
@@ -396,20 +339,6 @@ export default {
         type: 'success'
       })
       row.status = status
-    },
-    sortChange(data) {
-      const { prop, order } = data
-      if (prop === 'id') {
-        this.sortByID(order)
-      }
-    },
-    sortByID(order) {
-      if (order === 'ascending') {
-        this.listQuery.sort = '+id'
-      } else {
-        this.listQuery.sort = '-id'
-      }
-      this.handleFilter()
     },
     resetTemp() {
       this.temp = {
@@ -425,7 +354,15 @@ export default {
     async handleUpdate(row) {
       this.currentTicket = row.ticket
       const { data: resp } = await this.$axios.get('/secure/invest/parts/' + row.ticket + '?userid=' + this.$store.getters.userid)
+      console.log('用户角度获取到的answer报文：')
       console.log(resp)
+      for (const i in resp.data) {
+        resp.data[i].qList.forEach(quest => {
+          if (quest.q === 'Q26') {
+            this.selectedCascade = quest.data
+          }
+        })
+      }
       if (!resp) {
         this.$message.error('操作失败！！！！请重新登录！！！')
       } else {
@@ -461,9 +398,6 @@ export default {
       this.currentDataSet = resp
       this.currentStepData = this.getXstep(this.currentStep)
       this.dialogFormVisible = true
-      // this.$nextTick(() => {
-      //   this.$refs['dataForm'].clearValidate()
-      // })
     },
     async updateData(row) {
       const { data: resp } = await this.$axios.post('/secure/invest/parts/' + this.currentTicket + '?userid=' + this.$store.getters.userid, this.currentStepData.qList)
@@ -476,17 +410,6 @@ export default {
         if (valid) {
           const tempData = Object.assign({}, this.temp)
           tempData.timestamp = +new Date(tempData.timestamp) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
-          // updateArticle(tempData).then(() => {
-          //   const index = this.list.findIndex(v => v.id === this.temp.id)
-          //   this.list.splice(index, 1, this.temp)
-          //   this.dialogFormVisible = false
-          //   this.$notify({
-          //     title: 'Success',
-          //     message: 'Update Successfully',
-          //     type: 'success',
-          //     duration: 2000
-          //   })
-          // })
         }
       })
       this.dialogFormVisible = false
@@ -506,10 +429,6 @@ export default {
     //     this.dialogPvVisible = true
     //   })
     // },
-    getSortClass: function(key) {
-      const sort = this.listQuery.sort
-      return sort === `+${key}` ? 'ascending' : 'descending'
-    },
     debugData(data) {
       console.log(this.markdownContent)
     },

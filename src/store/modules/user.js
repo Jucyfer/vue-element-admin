@@ -38,30 +38,18 @@ const mutations = {
 
 const actions = {
   async keepalive(state) {
-    const { data: resp } = await keepalive(state.userid)
-    console.log(resp)
+    await keepalive(state.userid)
   },
   // user login
   async login({ commit }, userInfo) {
-    console.log('login的userInfo对象')
-    console.log(userInfo)
     const key = await getSecureKey()
     const JSEncrypt = require('node-jsencrypt')
     const jse = new JSEncrypt()
     jse.setPublicKey(key)
     const encrypted = jse.encrypt(JSON.stringify(userInfo))
-    // const { data: mytoken } = await axios.post('/secure/login', jse.encrypt(JSON.stringify(userInfo)), {
-    //   headers: {
-    //     'Content-Type': 'text/plain;charset=UTF-8'
-    //   }
-    // })
-    // console.log('服务器返回真实Token结果：' + mytoken)
-    // 以下是原本的逻辑
-    // const { name, auth } = userInfo
     return new Promise((resolve, reject) => {
       login(encrypted).then(response => {
         const mytoken = response
-        console.log(mytoken)
         if (mytoken) {
           commit('SET_TOKEN', mytoken)
           setToken(mytoken)
@@ -78,9 +66,6 @@ const actions = {
     return new Promise((resolve, reject) => {
       getInfo(state.token).then(response => {
         const data = response
-        console.log('getUserInfo接口获取到的数据：')
-        console.log(JSON.stringify(data))
-        console.log(data)
         if (!data) {
           reject('Verification failed, please Login again.')
         }

@@ -85,10 +85,8 @@ export default [
     type: 'get',
     response: config => {
       const { token } = config.query
-      console.log('mock的userinfo接口的Token输出：' + token)
       // const info = users[token]
       const info = users['tester-token']
-      console.log('mock出的info:' + JSON.stringify(info))
       // mock error
       if (!info) {
         return {

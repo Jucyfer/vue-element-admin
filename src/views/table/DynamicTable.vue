@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-button v-if="!isFixed" size="mini" type="success" @click="handleAppend">
+    <el-button v-if="!$store.getters.reportViewOnly && !isFixed" size="mini" type="success" @click="handleAppend">
       添加
     </el-button>
     <el-table
@@ -20,7 +20,7 @@
             v-if="(column.is||customOptions.globalEditType)!='select'"
             v-model="row[column.name]"
             :edit-type="column.is||customOptions.globalEditType||'input'"
-            :editable="column.isEditable"
+            :editable="!$store.getters.reportViewOnly && column.isEditable"
             :custom-content-wrapper="customOptions.customContentWrapper"
             :viewas="column.viewas"
             :holder="column.holder"
@@ -51,7 +51,7 @@
           </el-select>
         </template>
       </el-table-column>
-      <el-table-column v-if="!isFixed" label="动作" width="180" class="tbcol">
+      <el-table-column v-if="!$store.getters.reportViewOnly && !isFixed" label="动作" width="180" class="tbcol">
         <template slot-scope="scope">
           <el-button size="mini" type="danger" @click="handleDelete(scope.$index)">
             删除
@@ -78,6 +78,7 @@ export default {
   event: ['change'],
   data() {
     return {
+      isModified: false,
       tableData: this.value
     }
   },
@@ -103,6 +104,7 @@ export default {
       this.tableData.push(emptyRow)
     },
     handleDelete(index) {
+      this.isModified = true
       this.tableData.splice(index, 1)
     },
     async remoteMethod(data, column) {

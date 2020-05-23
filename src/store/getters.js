@@ -13,6 +13,7 @@ const getters = {
   permission_routes: state => state.permission.routes,
   errorLogs: state => state.errorLog.logs,
   questMetaMap: state => state.questCommon.quest_Meta_Map,
-  questMap: state => state.questCommon.quest_CN_Map
+  questMap: state => state.questCommon.quest_CN_Map,
+  reportViewOnly: state => state.reports.viewOnly
 }
 export default getters

@@ -3,7 +3,7 @@
     <!--    <span v-if="!showEditor" class=".span" @click="showEditor = isEditable">{{ facadeValue | validshow }}</span>-->
     <el-tooltip placement="top" :disabled="!tipshown" effect="light">
       <div slot="content">{{ tiptext }}</div>
-      <component :is="viewas" v-if="!showEditor" class=".span" @click="showEditor = isEditable">{{ facadeValue | validshow }}</component>
+      <component :is="viewas" v-if="!showEditor" class="view-as" @click="showEditor = isEditable">{{ facadeValue | validshow }}</component>
     </el-tooltip>
     <el-input
       v-if="showEditor"
@@ -91,7 +91,7 @@ export default {
 </script>
 
 <style scoped>
-  .span {
+  .view-as {
     display: block;
     width: 100%;
     word-break: break-word;
