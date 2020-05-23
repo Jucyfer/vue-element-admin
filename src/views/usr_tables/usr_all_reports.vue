@@ -61,7 +61,7 @@
         <el-form-item
           v-for="quest in currentQList"
           v-if="isQuestionVisible(quest)"
-          :key="quest.q"
+          :key="quest.q + Math.random()"
           :label="getCNTag(quest.q)"
         >
           <el-cascader-panel
@@ -73,9 +73,9 @@
           />
           <component
             :is="extractMeta(quest.q, 'is') | componentFilter"
-            :readonly="$store.getters.reportViewOnly"
             v-else
             v-model="quest.data"
+            :readonly="$store.getters.reportViewOnly"
             :type="extractMeta(quest.q, 'is') | inpuTypeFilter"
             :column-meta="extractMeta(quest.q, 'dataHead')"
             :options="{hideModeSwitch:true,previewStyle:'tab'}"
@@ -88,7 +88,7 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">
+        <el-button @click="closeDialog()">
           取消
         </el-button>
         <el-button v-if="!$store.getters.reportViewOnly" type="primary" @click="updateData()">
@@ -284,7 +284,6 @@ export default {
       console.log('管理员角度获取到的用户answer：')
       console.log(resp)
       for (const q in resp) {
-        console.log(resp[q].q)
         if (resp[q].q === 'Q26') {
           this.selectedCascade = resp[q].data
           break
@@ -316,6 +315,15 @@ export default {
       //   }
       // })
       this.dialogFormVisible = false
+      this.$nextTick(() => {
+        this.currentQList = []
+      })
+    },
+    closeDialog() {
+      this.dialogFormVisible = false
+      this.$nextTick(() => {
+        this.currentQList = []
+      })
     },
     extractMeta(qid, index) {
       return this.$store.getters.questMetaMap[qid][index]

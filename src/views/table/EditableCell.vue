@@ -95,5 +95,7 @@ export default {
     display: block;
     width: 100%;
     word-break: break-word;
+    word-wrap:break-word;
+    white-space: pre-line;
   }
 </style>

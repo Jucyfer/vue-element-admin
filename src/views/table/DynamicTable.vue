@@ -92,6 +92,7 @@ export default {
   },
   watch: {
     tableData(oldData, newData) {
+      this.tableData = newData
       this.$emit('change', newData)
     }
   },
