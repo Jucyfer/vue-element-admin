@@ -272,6 +272,7 @@ export default {
     this.getList()
     this.$store.dispatch('questCommon/init_quest_CN_Map')
     this.$store.dispatch('questCommon/init_quest_Meta_Map')
+    this.$store.commit('reports/ALTER_VIEW_ONLY', false)
   },
   methods: {
     isQuestionVisible(question) {

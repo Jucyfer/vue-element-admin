@@ -251,6 +251,9 @@ export default {
     this.$store.dispatch('questCommon/init_quest_Meta_Map')
     this.getList()
   },
+  beforeDestory() {
+    this.$store.commit('reports/ALTER_VIEW_ONLY', false)
+  },
   methods: {
     isQuestionVisible(question) {
       const q = question.q
