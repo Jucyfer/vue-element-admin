@@ -82,18 +82,18 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <!--        随便加的-->
-        <el-button :disabled="currentStep==1" @click="handlePreviousStep">
-          上一步
-        </el-button>
-        <el-button :disabled="currentDataSet.data && currentStep==currentDataSet.data.length" @click="handleNextStep">
-          下一步
-        </el-button>
         <!--        随便加的（结束）-->
         <el-button @click="dialogFormVisible = false">
           取消
         </el-button>
-        <el-button type="primary" @click="dialogStatus==='create'?createData():updateData()">
+        <!--        随便加的-->
+        <el-button v-if="currentStep>1" @click="handlePreviousStep">
+          上一步
+        </el-button>
+        <el-button v-if="currentDataSet.data && currentStep<currentDataSet.data.length" @click="handleNextStep">
+          下一步
+        </el-button>
+        <el-button v-else type="primary" @click="updateData()">
           保存
         </el-button>
       </div>

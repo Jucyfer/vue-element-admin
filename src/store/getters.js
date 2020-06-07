@@ -8,12 +8,18 @@ const getters = {
   userid: state => state.user.userid,
   avatar: state => state.user.avatar,
   name: state => state.user.name,
+  com: state => state.user.com,
+  comId: state => state.user.comId,
   introduction: state => state.user.introduction,
   roles: state => state.user.roles,
   permission_routes: state => state.permission.routes,
   errorLogs: state => state.errorLog.logs,
   questMetaMap: state => state.questCommon.quest_Meta_Map,
   questMap: state => state.questCommon.quest_CN_Map,
-  reportViewOnly: state => state.reports.viewOnly
+  reportViewOnly: state => state.reports.viewOnly,
+  strategyCascade: state => state.fund.cascadeOptions,
+  strategyMap: state => state.fund.strategyTranslation,
+  employeePositionOptions: state => state.employee.positionOptions,
+  employeepositionTranslation: state => state.employee.positionTranslation
 }
 export default getters

@@ -115,7 +115,22 @@ export const constantRoutes = [
       }
     ]
   },
-
+  {
+    path: '/employee',
+    component: Layout,
+    redirect: 'employeelist',
+    // component: () => import('@/views/competition/Competition.vue'),
+    // name: 'Competition',
+    // meta: { title: '实盘大赛', icon: 'money', noCache: true },
+    children: [
+      {
+        path: '',
+        component: () => import('@/views/employee/EmployeeInfomation.vue'),
+        name: 'employeelist',
+        meta: { title: '人员信息（P）', icon: 'peoples', noCache: true }
+      }
+    ]
+  },
   // {
   //   path: '/documentation',
   //   component: Layout,
@@ -172,7 +187,7 @@ export const asyncRoutes = [
     name: 'Permission',
     meta: {
       // title: 'Permission',
-      title: '权限管理',
+      title: '权限管理(G)',
       icon: 'lock',
       // roles: ['admin', 'editor'] // you can set roles in root nav
       roles: ['admin'] // you can set roles in root nav
@@ -430,34 +445,66 @@ export const asyncRoutes = [
   //   ]
   // },
   {
-    path: '/combinedfund',
+    path: '/fundlist',
     component: Layout,
-    redirect: 'combinedfund',
+    redirect: 'fundlist',
     // component: () => import('@/views/competition/Competition.vue'),
     // name: 'Competition',
     // meta: { title: '实盘大赛', icon: 'money', noCache: true },
     children: [
       {
         path: '',
-        component: () => import('@/views/competition/Competition.vue'),
-        name: 'combinedfund',
-        meta: { title: '基金总览', icon: 'money', noCache: true }
+        component: () => import('@/views/fund/FundList.vue'),
+        name: 'fundlist',
+        meta: { title: '基金信息（P）', icon: 'documentation', noCache: true }
       }
     ]
   },
   {
-    path: '/favorites',
+    path: '/fundvalueinfolist',
     component: Layout,
-    redirect: 'favorites',
+    redirect: 'fundvalueinfolist',
     // component: () => import('@/views/competition/Competition.vue'),
     // name: 'Competition',
     // meta: { title: '实盘大赛', icon: 'money', noCache: true },
     children: [
       {
         path: '',
-        component: () => import('@/views/competition/Competition.vue'),
-        name: 'favorites',
-        meta: { title: '产品收藏夹', icon: 'money', noCache: true }
+        component: () => import('@/views/fund/FundValueInfoList.vue'),
+        name: 'fundvalueinfolist',
+        meta: { title: '净值信息（P）', icon: 'chart', noCache: true }
+      }
+    ]
+  },
+  {
+    path: '/fundoverview',
+    component: Layout,
+    redirect: 'fundoverview',
+    // component: () => import('@/views/competition/Competition.vue'),
+    // name: 'Competition',
+    // meta: { title: '实盘大赛', icon: 'money', noCache: true },
+    children: [
+      {
+        path: '',
+        component: () => import('@/views/fund/FundOverView.vue'),
+        name: 'fundoverview',
+        meta: { title: '基金总览（G）', icon: 'chart', noCache: true }
+      }
+    ]
+  },
+  {
+    path: '/combinefund',
+    component: Layout,
+    redirect: 'combinefund',
+    // component: () => import('@/views/competition/Competition.vue'),
+    // name: 'Competition',
+    // meta: { title: '实盘大赛', icon: 'money', noCache: true },
+    children: [
+      {
+        path: '',
+        component: () => import('@/views/fund/FundCombine.vue'),
+        name: 'combinefund',
+        meta: { title: '组合基金', icon: 'favorite', noCache: true }
       }
     ]
   },
@@ -478,26 +525,26 @@ export const asyncRoutes = [
     ]
   },
 
-  {
-    path: 'external-anotherlink',
-    component: Layout,
-    children: [
-      {
-        path: 'http://www.secretmonkey.site',
-        meta: { title: '自己乱写的标题', icon: 'link' }
-      }
-    ]
-  },
-  {
-    path: 'external-anotherlink2',
-    component: Layout,
-    children: [
-      {
-        path: 'https://www.baidu.com',
-        meta: { title: '百度', icon: 'link' }
-      }
-    ]
-  },
+  // {
+  //   path: 'external-anotherlink',
+  //   component: Layout,
+  //   children: [
+  //     {
+  //       path: 'http://www.secretmonkey.site',
+  //       meta: { title: '自己乱写的标题', icon: 'link' }
+  //     }
+  //   ]
+  // },
+  // {
+  //   path: 'external-anotherlink2',
+  //   component: Layout,
+  //   children: [
+  //     {
+  //       path: 'https://www.baidu.com',
+  //       meta: { title: '百度', icon: 'link' }
+  //     }
+  //   ]
+  // },
 
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }
