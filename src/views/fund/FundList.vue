@@ -83,7 +83,7 @@
       <el-table-column align="center">
         <template slot="header">
           <div>
-            预警线<br/>(0-100)
+            预警线<br>(0-100)
           </div>
         </template>
         <template slot-scope="{row}">
@@ -97,14 +97,14 @@
             :min="0"
             :max="100"
             :step="10"
-            placeholder="0~1"
+            placeholder="0~100"
           />
         </template>
       </el-table-column>
       <el-table-column align="center">
         <template slot="header" slot-scope="scope">
           <div>
-            强平线<br/>(0-100)
+            强平线<br>(0-100)
           </div>
         </template>
         <template slot-scope="{row}">
@@ -118,7 +118,7 @@
             :min="0"
             :max="100"
             :step="10"
-            placeholder="0~1"
+            placeholder="0~100"
           />
         </template>
       </el-table-column>
@@ -130,8 +130,8 @@
       </el-table-column>
       <el-table-column label="操作" width="210px" align="center" class-name="small-padding fixed-width">
         <template slot-scope="{row,$index}">
-          <el-button size="mini" type="success" @click="handleExamine(row)">
-            {{row.isEditMode?'保存':'修改'}}
+          <el-button size="mini" :type="row.isEditMode?'success':'warn'" @click="handleEdit(row)">
+            {{ row.isEditMode?'保存':'修改' }}
           </el-button>
         </template>
       </el-table-column>
@@ -200,13 +200,26 @@ export default {
       })
       this.listLoading = false
     },
-    handleExamine(row) {
+    async handleEdit(row) {
       row.isEditMode = !row.isEditMode
       if (!row.isEditMode) {
-        this.$message({
-          message: '修改成功；未连接服务器',
-          type: 'success'
-        })
+        // /infomation/{pid}/fund/{fundId}
+        if (row.closeOut == null) {
+          row.closeOut = 0.0
+        }
+        if (row.warnLevel == null) {
+          row.warnLevel = 0.0
+        }
+        const { data: result } = await this.$axios.post(
+          '/secure/infomation/' + this.$store.getters.comId + '/fund/' + row.fundId + '?userid=' + this.$store.getters.userid,
+          { strategy: row.strategy, warnLevel: parseFloat(row.warnLevel), closeOut: parseFloat(row.closeOut), isRepresent: row.isRepresent }
+        )
+        if (!result) {
+          this.$message({
+            message: '修改成功',
+            type: 'success'
+          })
+        }
       }
       this.$forceUpdate()
     }

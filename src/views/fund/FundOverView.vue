@@ -53,7 +53,7 @@
       <el-table-column label="基金策略" align="center">
         <template slot-scope="{row}">
           <div :key="Math.random()">
-            <el-tag v-for="item in row.strategy" :key="item + Math.random()">{{ item }}</el-tag>
+            <el-tag v-for="item in row.strategy" :key="item + Math.random()">{{ item | strategyFilter}}</el-tag>
           </div>
         </template>
       </el-table-column>
@@ -82,11 +82,15 @@
 </template>
 
 <script>
+import store from '@/store/index'
 export default {
   name: 'FundOverView',
   filters: {
     valueValidator(param) {
       return param == null || param == 0 ? '--' : param
+    },
+    strategyFilter(param) {
+      return store.getters.strategyMap[param]
     }
   },
   data() {

@@ -40,32 +40,31 @@
           <span>{{ row.certCode }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="手机号" align="center" :key="Math.random()">
+      <el-table-column label="手机号" align="center">
         <template slot-scope="{row}">
-          <span v-if="!row.isEditMode" :key="Math.random()">{{ row.mobile }}</span>
-          <el-input v-if="row.isEditMode" v-model="row.mobile" placehoder="请输入手机号" :key="Math.random()"/>
+          <span v-if="!row.isEditMode">{{ row.mobile }}</span>
+          <el-input v-if="row.isEditMode" v-model="row.mobile" placehoder="请输入手机号" />
         </template>
       </el-table-column>
-      <el-table-column label="职务类型" align="center" :key="Math.random()">
+      <el-table-column :key="Math.random()" label="职务类型" align="center">
         <template slot-scope="{row}">
           <div v-if="!row.isEditMode" :key="Math.random()">
-            <el-tag v-for="item in row.position" :key="item + Math.random()">{{item | positionFilter}}</el-tag>
+            <el-tag v-for="item in row.position" :key="item + Math.random()">{{ item | positionFilter }}</el-tag>
           </div>
-          <el-select v-if="row.isEditMode" v-model="row.position" multiple placeholder="请选择职务">
+          <el-select v-if="row.isEditMode" v-model="row.position" multiple clearable placeholder="请选择职务">
             <el-option
               v-for="item in positionOptions"
               :key="item.value + Math.random()"
               :label="item.label"
               :value="item.value"
-              clearable
             />
           </el-select>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" width="291" class-name="small-padding fixed-width">
         <template slot-scope="{row,$index}">
-          <el-button size="mini" type="success" @click="handleExamine(row)">
-            {{row.isEditMode?'保存':'修改'}}
+          <el-button size="mini" :type="row.isEditMode?'success':'warn'" @click="handleEdit(row)">
+            {{ row.isEditMode?'保存':'修改' }}
           </el-button>
         </template>
       </el-table-column>
@@ -122,8 +121,16 @@ export default {
       })
       this.listLoading = false
     },
-    handleExamine(row) {
+    async handleEdit(row) {
       row.isEditMode = !row.isEditMode
+      if (!row.isEditMode) {
+        // infomation/{pid}/staffs/{staffId}
+        const { data: result } = await this.$axios.post('/secure/infomation/' + this.$store.getters.comId + '/staffs/' + row.staffId + '?userid=' + this.$store.getters.userid, { mobile: row.mobile, position: row.position })
+        // eslint-disable-next-line eqeqeq
+        if (result == 'success') {
+          this.$message('修改成功')
+        }
+      }
       this.$forceUpdate()
     }
   }
