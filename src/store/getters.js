@@ -19,6 +19,9 @@ const getters = {
   reportViewOnly: state => state.reports.viewOnly,
   strategyCascade: state => state.fund.cascadeOptions,
   strategyMap: state => state.fund.strategyTranslation,
+  strategyTableFilter: state => state.fund.strategyFilterArray,
+  fundValSourceMap: state => state.fund.sourceType,
+  fundValSourceFilter: state => state.fund.sourceTypeFilter,
   employeePositionOptions: state => state.employee.positionOptions,
   employeepositionTranslation: state => state.employee.positionTranslation
 }

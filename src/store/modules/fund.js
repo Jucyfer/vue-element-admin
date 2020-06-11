@@ -105,7 +105,42 @@ const state = {
     'others': '其他',
     'fof': '组合基金-FOF',
     'mom': '组合基金-MOM'
-  }
+  },
+  strategyFilterArray: [
+    { text: '股票-多头', value: 'equityLong' },
+    { text: '股票-Alpha', value: 'alpha' },
+    { text: '股票-指数增强', value: 'augmentationIndex' },
+    { text: '股票-日内T0', value: 'dayT0' },
+    { text: '股票-套利', value: 'straddle' },
+    { text: '股票-其他', value: 'other_stock' },
+    { text: '期货-基本面驱动', value: 'fundamentals' },
+    { text: '期货-基于逻辑-传统趋势', value: 'traditionTrend' },
+    { text: '期货-基于逻辑-截面策略', value: 'crossSection' },
+    { text: '期货-基于逻辑-舆情策略', value: 'publicSentiment' },
+    { text: '期货-基于逻辑-日内策略', value: 'inDay' },
+    { text: '期货-基于逻辑-多因子', value: 'multiFactor' },
+    { text: '期货-机器学习', value: 'machineLearning' },
+    { text: '期货-高频策略', value: 'hiFreqStrategy' },
+    { text: '期货-套利', value: 'arbitrage' },
+    { text: '期货-其他', value: 'other_future' },
+    { text: '期权类', value: 'options' },
+    { text: '债券类', value: 'bonds' },
+    { text: '宏观对冲类', value: 'macroHedges' },
+    { text: '其他', value: 'others' },
+    { text: '组合基金-FOF', value: 'fof' },
+    { text: '组合基金-MOM', value: 'mom' }
+  ],
+  sourceType: {
+    'userUpload': '用户上传',
+    'hostMail': '托管邮箱',
+    'adminUpload': '管理员上传'
+  },
+  sourceTypeFilter: [
+    { text: '用户上传', value: 'userUpload' },
+    { text: '托管邮箱', value: 'hostMail' },
+    { text: '管理员上传', value: 'adminUpload' }
+  ]
+
 }
 const mutations = {}
 const actions = {}

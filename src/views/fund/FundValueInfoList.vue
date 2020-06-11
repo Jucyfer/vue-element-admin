@@ -35,19 +35,26 @@
           <span>{{ row.fundName }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="最新净值" align="center">
+      <el-table-column label="最新净值" align="center" sortable prop="lastValue">
         <template slot-scope="{row}">
           <span>{{ row.lastValue | valueValidator }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="净值更新日期" align="center">
+      <el-table-column label="净值更新日期" align="center" sortable prop="lastDate">
         <template slot-scope="{row}">
           <span>{{ row.lastDate | valueValidator }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="更新方式" align="center">
+      <el-table-column
+        label="更新方式"
+        align="center"
+        sortable
+        prop="lastFrom"
+        :filters="$store.getters.fundValSourceFilter"
+        :filter-method="sourceFilterHandler"
+      >
         <template slot-scope="{row}">
-          <span>{{ row.lastFrom | valueValidator }}</span>
+          <span>{{ row.lastFrom | valueValidator | sourceFilter }}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
@@ -63,23 +70,39 @@
         </template>
       </el-table-column>
     </el-table>
-
+    <el-dialog :key="Math.random()" :title="currentName" :visible.sync="retDialogVisible" @close="handleClearChart">
+      <simplechart :key="Math.random()" :category.sync="currentCategory" :data.sync="currentData" serie-name="data" title="走势图" />
+    </el-dialog>
     <!--    <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />-->
   </div>
 </template>
 
 <script>
+import store from '@/store/index'
+import simplechart from '@/components/Charts/SingleDataLineChart'
 export default {
   name: 'FundValueInfoList',
   filters: {
     valueValidator(param) {
       return param == null || param == 0 ? '--' : param
+    },
+    sourceFilter(param) {
+      return store.getters.fundValSourceMap[param]
     }
+  },
+  components: {
+    simplechart
   },
   data() {
     return {
+      currentCategory: [],
+      currentData: [],
+      currentName: '',
       list: [],
       listLoading: false,
+      retDialogVisible: false,
+      retContainer: {
+      },
       listQuery: {
         page: 1,
         limit: 20,
@@ -109,7 +132,20 @@ export default {
       this.listLoading = false
     },
     handleExamine(row) {
-      return
+      this.retDialogVisible = true
+      this.currentCategory = row.category
+      this.currentData = row.ret
+      this.currentName = row.fundName
+      this.$forceUpdate()
+    },
+    handleClearChart() {
+      this.currentCategory = []
+      this.currentData = []
+      this.currentName = ''
+      this.$forceUpdate()
+    },
+    sourceFilterHandler(value, row, column) {
+      return row.lastFrom && row.lastFrom.indexOf(value) >= 0
     }
   }
 
