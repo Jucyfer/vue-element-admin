@@ -44,7 +44,7 @@ Object.keys(filters).forEach(key => {
 
 Vue.config.productionTip = false
 Vue.prototype.$axios = axios
-Vue.prototype._ = _
+Vue.prototype.$_ = _
 // axios.defaults.baseURL = 'http://127.0.0.1:8080/'
 axios.interceptors.request.use(
   config => {

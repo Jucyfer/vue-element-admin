@@ -139,7 +139,32 @@ const state = {
     { text: '用户上传', value: 'userUpload' },
     { text: '托管邮箱', value: 'hostMail' },
     { text: '管理员上传', value: 'adminUpload' }
-  ]
+  ],
+  statisticMap: {
+    'startDate': '开始日期',
+    'endDate': '结束日期',
+    'lastDate': '最新日期',
+    'lastValue': '最新净值',
+    'timeParam': '时间参数',
+    'profit3M': '近三月收益',
+    'profit1Y': '近一年收益',
+    'profitCY': '今年收益',
+    'maintainDays': '基金持续时间',
+    'tradingDays': '交易日',
+    'positiveDays': '正收益日',
+    'negativeDays': '负收益日',
+    'zeroDays': '零收益日',
+    'finalProfit': '累计收益率',
+    'annualRate': '年化收益率',
+    'averageDailyRate': '日均收益率',
+    'winRate': '胜率',
+    'profitLossRatio': '盈亏比',
+    'maxDrawDown': '最大回撤',
+    'maxRise': '最大上涨',
+    'downsideSTDEV': '下侧波动率',
+    'allsideSTDEV': '标准差',
+    'sharpRate': '夏普比率'
+  }
 
 }
 const mutations = {}

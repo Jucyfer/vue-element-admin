@@ -18,6 +18,16 @@ export function login(data) {
   })
 }
 
+export function register(data) {
+  // return axios.post('/secure/login', data, { headers: { 'Content-Type': 'text/plain;charset=UTF-8' }})
+  return request({
+    // url: '/vue-element-admin/user/login',
+    url: '/secure/register',
+    method: 'post',
+    data,
+    headers: { 'Content-Type': 'text/plain;charset=UTF-8' }
+  })
+}
 export function getInfo() {
   return request({
     // url: '/vue-element-admin/user/info',

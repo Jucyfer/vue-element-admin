@@ -46,7 +46,7 @@
         </template>
       </el-table-column>
       <el-table-column
-        label="更新方式"
+        label="最后更新渠道"
         align="center"
         sortable
         prop="lastFrom"
@@ -70,8 +70,8 @@
         </template>
       </el-table-column>
     </el-table>
-    <el-dialog :key="Math.random()" :title="currentName" :visible.sync="retDialogVisible" @close="handleClearChart">
-      <simplechart :key="Math.random()" :category.sync="currentCategory" :data.sync="currentData" serie-name="data" title="走势图" />
+    <el-dialog :key="Math.random()" :title="currentName" :visible.sync="retDialogVisible" @close="handleClearChart" width="80%">
+      <simplechart width="100%" height="500px" :key="Math.random()" :category.sync="currentCategory" :data.sync="currentData" serie-name="data" title="走势图" />
     </el-dialog>
     <!--    <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />-->
   </div>

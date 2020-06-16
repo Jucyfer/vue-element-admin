@@ -25,7 +25,7 @@
       highlight-current-row
       style="width: 100%;height:100%"
     >
-      <el-table-column label="序号" align="center">
+      <el-table-column label="序号" width="63px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.id }}</span>
         </template>
@@ -40,7 +40,7 @@
           <span>{{ row.fundNo }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="管理人名称" align="center">
+      <el-table-column label="管理人名称" align="center" sortable prop="orgName">
         <template slot-scope="{row}">
           <span>{{ row.orgName }}</span>
         </template>
@@ -67,9 +67,44 @@
           <span>{{ row.lastValue | valueValidator }}</span>
         </template>
       </el-table-column>
+      <el-table-column label="本周收益" align="center" sortable sort-method="sortByPercent" prop="profitPresentWeek">
+        <template slot-scope="{row}">
+          <span>{{ row.profitPresentWeek | valueValidator }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="本月收益" align="center" sortable sort-method="sortByPercent" prop="profitPresentMonth">
+        <template slot-scope="{row}">
+          <span>{{ row.profitPresentMonth | valueValidator }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="年化收益率" align="center" sortable sort-method="sortByPercent" prop="annualRate">
+        <template slot-scope="{row}">
+          <span>{{ row.annualRate | valueValidator }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="最大回撤" align="center" sortable sort-method="sortByPercent" prop="maxDrawDown">
+        <template slot-scope="{row}">
+          <span>{{ row.maxDrawDown | valueValidator }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="风险收益比" align="center" sortable prop="riskReturnRatio">
+        <template slot-scope="{row}">
+          <span>{{ row.riskReturnRatio | valueValidator }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="夏普比率" align="center" sortable prop="sharpRate">
+        <template slot-scope="{row}">
+          <span>{{ row.sharpRate | valueValidator }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="净值更新日期" align="center" sortable prop="lastDate">
         <template slot-scope="{row}">
           <span>{{ row.lastDate | valueValidator }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="持续天数" align="center" sortable prop="maintainDays">
+        <template slot-scope="{row}">
+          <span>{{ row.maintainDays | valueValidator }}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
@@ -81,8 +116,32 @@
         </template>
       </el-table-column>
     </el-table>
-    <el-dialog :key="Math.random()" :title="currentName" :visible.sync="retDialogVisible" @close="handleClearChart">
-      <simplechart :key="Math.random()" :category.sync="currentCategory" :data.sync="currentData" :serie-name.sync="data" title="走势图" />
+    <el-dialog :key="Math.random()" :close-on-click-modal="false" :title="currentName" :visible.sync="retDialogVisible" width="80%" class="statisticDialog" @close="handleClearChart">
+      <simplechart :key="Math.random()" width="100%" height="500px" :category.sync="currentCategory" :data.sync="currentData" :serie-name.sync="data" title="走势图" />
+      <div>
+        <span>数据概览</span>
+      </div>
+      <fund-summary :key="Math.random()" width="100%" :fund-data="currentRow"></fund-summary>
+      <div>
+        <span>净值明细</span>
+      </div>
+      <el-table
+        :data="currentDisplay"
+        border
+        fit
+        max-height="600px"
+      >
+        <el-table-column label="日期" align="center" sortable prop="date">
+          <template slot-scope="{row}">
+            <span>{{ row.date }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="净值" align="center">
+          <template slot-scope="{row}">
+            <span>{{ row.value }}</span>
+          </template>
+        </el-table-column>
+      </el-table>
     </el-dialog>
     <!--    <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />-->
   </div>
@@ -91,6 +150,7 @@
 <script>
 import store from '@/store/index'
 import simplechart from '@/components/Charts/SingleDataLineChart'
+import fundSummary from '@/components/Panel/FundSummary'
 export default {
   name: 'FundOverView',
   filters: {
@@ -101,12 +161,17 @@ export default {
       return store.getters.strategyMap[param]
     }
   },
-  components: { simplechart },
+  components: {
+    simplechart,
+    fundSummary
+  },
   data() {
     return {
       currentCategory: [],
       currentData: [],
+      currentRow: {},
       currentName: '',
+      currentDisplay: [],
       list: [],
       listLoading: false,
       retDialogVisible: false,
@@ -142,12 +207,16 @@ export default {
     },
     handleExamine(row) {
       this.retDialogVisible = true
+      this.currentRow = row
+      this.currentDisplay = row.display
       this.currentCategory = row.category
       this.currentData = row.ret
       this.currentName = row.fundName
       this.$forceUpdate()
     },
     handleClearChart() {
+      this.currentRow = {}
+      this.currentDisplay = []
       this.currentCategory = []
       this.currentData = []
       this.currentName = ''
@@ -155,6 +224,9 @@ export default {
     },
     strategyFilterHandler(value, row, column) {
       return row.strategy.indexOf(value) >= 0
+    },
+    sortByPercent(a, b) {
+      return (a, b) => parseFloat(a.split('%')[0]) - parseFloat(b.split('%')[0])
     }
   }
 
@@ -162,5 +234,9 @@ export default {
 </script>
 
 <style scoped>
-
+.statisticDialog{
+  align-items: center;
+  align-content: center;
+  child-align: middle;
+}
 </style>

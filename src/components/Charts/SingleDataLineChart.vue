@@ -1,11 +1,13 @@
 <template>
-  <div id="lineChart" style="height: 500px;width:100%" />
+  <div id="lineChart" :style="{height:height,width:width}"></div>
 </template>
 
 <script>
 import echarts from 'echarts'
+import resize from './mixins/resize'
 export default {
   name: 'SingleDataLineChart',
+  mixins: [resize],
   props: {
     category: {
       type: Array
@@ -21,6 +23,14 @@ export default {
     },
     title: {
       type: String
+    },
+    width: {
+      type: String,
+      default: '100%'
+    },
+    height: {
+      type: String,
+      default: '500px'
     }
   },
   data() {
@@ -113,6 +123,12 @@ export default {
     initChart() {
       this.chart = echarts.init(this.$el)
       this.chart.setOption(this.options)
+      this.chart.on('dataZoom', event => {
+        const dataZoom0 = this.chart.getOption().dataZoom[0]
+        const startValue = dataZoom0.startValue
+        const endValue = dataZoom0.endValue
+        this.$emit('zoom', startValue, endValue)
+      })
     }
   }
 }

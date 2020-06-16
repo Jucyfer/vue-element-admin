@@ -12,11 +12,11 @@
 
         <error-log class="errLog-container right-menu-item hover-effect" />
 
-        <screenfull id="screenfull" class="right-menu-item hover-effect" />
+<!--        <screenfull id="screenfull" class="right-menu-item hover-effect" />-->
 
-        <el-tooltip content="Global Size" effect="dark" placement="bottom">
-          <size-select id="size-select" class="right-menu-item hover-effect" />
-        </el-tooltip>
+<!--        <el-tooltip content="Global Size" effect="dark" placement="bottom">-->
+<!--          <size-select id="size-select" class="right-menu-item hover-effect" />-->
+<!--        </el-tooltip>-->
 
       </template>
 
@@ -47,8 +47,8 @@ import { mapGetters } from 'vuex'
 import Breadcrumb from '@/components/Breadcrumb'
 import Hamburger from '@/components/Hamburger'
 import ErrorLog from '@/components/ErrorLog'
-import Screenfull from '@/components/Screenfull'
-import SizeSelect from '@/components/SizeSelect'
+// import Screenfull from '@/components/Screenfull'
+// import SizeSelect from '@/components/SizeSelect'
 import Search from '@/components/HeaderSearch'
 
 export default {
@@ -56,8 +56,8 @@ export default {
     Breadcrumb,
     Hamburger,
     ErrorLog,
-    Screenfull,
-    SizeSelect,
+    // Screenfull,
+    // SizeSelect,
     Search
   },
   computed: {
@@ -145,8 +145,8 @@ export default {
 
         .user-avatar {
           cursor: pointer;
-          width: 40px;
-          height: 40px;
+          /*width: 40px;*/
+          /*height: 40px;*/
           border-radius: 10px;
         }
 

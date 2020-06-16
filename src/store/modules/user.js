@@ -1,4 +1,4 @@
-import { getSecureKey, login, logout, getInfo, keepalive } from '@/api/user'
+import { getSecureKey, login, logout, register, getInfo, keepalive } from '@/api/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import router, { resetRouter } from '@/router'
 // import axios from 'axios'
@@ -63,6 +63,27 @@ const actions = {
           setToken(mytoken)
           resolve()
         }
+      }).catch(error => {
+        reject(error)
+      })
+    })
+  },
+  // user register
+  async register({ commit }, regForm) {
+    const key = await getSecureKey()
+    const JSEncrypt = require('node-jsencrypt')
+    const jse = new JSEncrypt()
+    jse.setPublicKey(key)
+    const encrypted = jse.encrypt(JSON.stringify(regForm))
+    return new Promise((resolve, reject) => {
+      register(encrypted).then(response => {
+        const resp = response
+        console.log(resp)
+        // if (mytoken) {
+        //   commit('SET_TOKEN', mytoken)
+        //   setToken(mytoken)
+        //   resolve()
+        // }
       }).catch(error => {
         reject(error)
       })

@@ -22,6 +22,7 @@ const getters = {
   strategyTableFilter: state => state.fund.strategyFilterArray,
   fundValSourceMap: state => state.fund.sourceType,
   fundValSourceFilter: state => state.fund.sourceTypeFilter,
+  fundStatisticMap: state => state.fund.statisticMap,
   employeePositionOptions: state => state.employee.positionOptions,
   employeepositionTranslation: state => state.employee.positionTranslation
 }

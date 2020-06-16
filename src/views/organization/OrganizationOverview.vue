@@ -11,133 +11,84 @@
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="console.log(1234)">
         查找
       </el-button>
-      <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="console.log(1234)">
-        新增
+      <el-button v-waves class="filter-item" type="primary" icon="el-icon-refresh" @click="initList">
+        刷新列表
       </el-button>
     </div>
 
     <el-table
       :key="tableKey"
-      v-loading="false"
+      v-loading="listLoading"
       :data="list"
       border
       fit
       highlight-current-row
       style="width: 100%;height:100%"
     >
-<!--      <el-table-column label="序号" align="center">-->
-<!--        <template slot-scope="{row}">-->
-<!--          <span>{{ row.temp }}</span>-->
-<!--        </template>-->
-<!--      </el-table-column>-->
-      <el-table-column label="组合基金名称" align="center">
+      <el-table-column label="序号" width="63px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.temp }}</span>
         </template>
       </el-table-column>
-<!--      <el-table-column label="创建人" align="center">-->
-<!--        <template slot-scope="{row}">-->
-<!--          <span>{{ row.temp }}</span>-->
-<!--        </template>-->
-<!--      </el-table-column>-->
-      <el-table-column label="预警线" align="center">
+      <el-table-column label="基金管理人" align="center">
         <template slot-scope="{row}">
           <span>{{ row.temp }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="强平线" align="center">
+      <el-table-column label="成立日期" align="center">
         <template slot-scope="{row}">
           <span>{{ row.temp }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="产品类型" align="center">
+      <el-table-column
+        label="基金策略"
+        align="center"
+      >
         <template slot-scope="{row}">
           <span>{{ row.temp }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="产品规模（万）" align="center">
+      <el-table-column label="经营地址" align="center">
         <template slot-scope="{row}">
           <span>{{ row.temp }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="最新拟合累计净值" align="center">
+      <el-table-column label="投顾资质" align="center">
         <template slot-scope="{row}">
           <span>{{ row.temp }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="本周收益" align="center">
+      <el-table-column label="管理规模" align="center">
         <template slot-scope="{row}">
           <span>{{ row.temp }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="本月收益" align="center">
+      <el-table-column label="协会管理规模" align="center">
         <template slot-scope="{row}">
           <span>{{ row.temp }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="年化收益率" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.temp }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="最大回撤" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.temp }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="风险收益比" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.temp }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="夏普比率" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.temp }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="最新净值更新日期" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.temp }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="持续天数" align="center">
+      <el-table-column label="对接人" align="center">
         <template slot-scope="{row}">
           <span>{{ row.temp }}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="{row,$index}">
-          <!--          编辑基金信息-->
-          <el-button size="mini" type="success" @click="handleExamine(row)">
-            编辑
-          </el-button>
           <!--          弹框净值走势-->
           <el-button size="mini" type="success" @click="handleExamine(row)">
             查看
           </el-button>
-          <!--          弹框净值走势-->
-          <el-button size="mini" type="error" @click="handleExamine(row)">
-            删除
-          </el-button>
         </template>
       </el-table-column>
     </el-table>
-
-    <!--    <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />-->
   </div>
 </template>
 
 <script>
 export default {
-  name: 'FundCombine',
-  filters: {
-
-  },
   data() {
     return {
-      list: [{
-        temp: 'test'
-      }],
       listQuery: {
         page: 1,
         limit: 20,
@@ -148,7 +99,13 @@ export default {
       },
       importanceOptions: [1, 2, 3],
       sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
-      tableKey: 0
+      tableKey: 0,
+      list: [
+        {
+          temp: 'temp'
+        }
+      ],
+      listLoading: false
     }
   },
   methods: {

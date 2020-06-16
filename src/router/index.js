@@ -58,6 +58,13 @@ export const constantRoutes = [
     meta: { title: 'Login', icon: 'password' }
   },
   {
+    path: '/register',
+    component: () => import('@/views/register/index'),
+    hidden: true,
+    name: 'Register',
+    meta: { title: 'Register', icon: 'edit' }
+  },
+  {
     path: '/auth-redirect',
     component: () => import('@/views/login/auth-redirect'),
     hidden: true
@@ -87,6 +94,22 @@ export const constantRoutes = [
     ]
   },
   // 插入的菜单
+  {
+    path: '/orgList',
+    component: Layout,
+    redirect: 'orgList',
+    // component: () => import('@/views/competition/Competition.vue'),
+    // name: 'Competition',
+    // meta: { title: '实盘大赛', icon: 'money', noCache: true },
+    children: [
+      {
+        path: '',
+        component: () => import('@/views/organization/OrganizationOverview.vue'),
+        name: 'orgList',
+        meta: { title: '管理人总览（G）', icon: 'excel', noCache: true }
+      }
+    ]
+  },
   {
     path: '/reports',
     component: Layout,
@@ -504,7 +527,7 @@ export const asyncRoutes = [
         path: '',
         component: () => import('@/views/fund/FundCombine.vue'),
         name: 'combinefund',
-        meta: { title: '组合基金', icon: 'favorite', noCache: true }
+        meta: { title: '组合基金（G）', icon: 'favorite', noCache: true }
       }
     ]
   },
