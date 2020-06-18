@@ -46,7 +46,7 @@
       </el-tooltip>
       <el-row :gutter="50">
         <el-col :span="12">
-          <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleRegister">Register</el-button>
+          <el-button type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleRegister">Register</el-button>
         </el-col>
         <el-col :span="12">
           <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">Login</el-button>
@@ -80,34 +80,34 @@
 </template>
 
 <script>
-import { validUsername } from '@/utils/validate'
+// import { validUsername } from '@/utils/validate'
 
 export default {
   name: 'Login',
   data() {
-    const validateUsername = (rule, value, callback) => {
-      if (!validUsername(value)) {
-        callback(new Error('Please enter the correct user name'))
-      } else {
-        callback()
-      }
-    }
-    const validatePassword = (rule, value, callback) => {
-      if (value.length < 6) {
-        // callback(new Error('The password can not be less than 6 digits'))
-        callback()
-      } else {
-        callback()
-      }
-    }
+    // const validateUsername = (rule, value, callback) => {
+    //   if (!validUsername(value)) {
+    //     callback(new Error('Please enter the correct user name'))
+    //   } else {
+    //     callback()
+    //   }
+    // }
+    // const validatePassword = (rule, value, callback) => {
+    //   if (value.length < 6) {
+    //     // callback(new Error('The password can not be less than 6 digits'))
+    //     callback()
+    //   } else {
+    //     callback()
+    //   }
+    // }
     return {
       loginForm: {
         name: '',
         auth: ''
       },
       loginRules: {
-        name: [{ required: true, trigger: 'blur', validator: validateUsername }],
-        auth: [{ required: true, trigger: 'blur', validator: validatePassword }]
+        name: [{ required: true, trigger: 'blur', message: '请输入用户名' }],
+        auth: [{ required: true, trigger: 'blur', message: '请输入密码' }]
       },
       passwordType: 'password',
       capsTooltip: false,
@@ -133,10 +133,10 @@ export default {
     // window.addEventListener('storage', this.afterQRScan)
   },
   mounted() {
-    if (this.loginForm.username === '') {
-      this.$refs.username.focus()
-    } else if (this.loginForm.password === '') {
-      this.$refs.password.focus()
+    if (this.loginForm.name === '') {
+      this.$refs.name.focus()
+    } else if (this.loginForm.auth === '') {
+      this.$refs.auth.focus()
     }
   },
   destroyed() {
@@ -163,13 +163,16 @@ export default {
           this.loading = true
           this.$store.dispatch('user/login', this.loginForm)
             .then(() => {
+              this.$message.success('登陆成功！正在跳转')
               this.$router.push({ path: this.redirect || '/', query: this.otherQuery })
               this.loading = false
             })
             .catch(() => {
+              this.$message.error('登录失败！')
               this.loading = false
             })
         } else {
+          this.$message.error('请正确填写用户名和密码')
           console.log('error submit!!')
           return false
         }

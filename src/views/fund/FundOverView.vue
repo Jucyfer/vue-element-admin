@@ -1,7 +1,13 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <el-input v-model="listQuery.title" placeholder="Title" style="width: 200px;" class="filter-item" @keyup.enter.native="console.log(1234)" />
+      <el-input
+        v-model="listQuery.title"
+        placeholder="Title"
+        style="width: 200px;"
+        class="filter-item"
+        @keyup.enter.native="console.log(1234)"
+      />
       <el-select v-model="listQuery.importance" placeholder="Imp" clearable style="width: 90px" class="filter-item">
         <el-option v-for="item in importanceOptions" :key="item" :label="item" :value="item" />
       </el-select>
@@ -67,22 +73,22 @@
           <span>{{ row.lastValue | valueValidator }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="本周收益" align="center" sortable sort-method="sortByPercent" prop="profitPresentWeek">
+      <el-table-column label="本周收益" align="center" sortable :sort-method="sortWeekly" prop="profitPresentWeek">
         <template slot-scope="{row}">
           <span>{{ row.profitPresentWeek | valueValidator }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="本月收益" align="center" sortable sort-method="sortByPercent" prop="profitPresentMonth">
+      <el-table-column label="本月收益" align="center" sortable :sort-method="sortMonthly" prop="profitPresentMonth">
         <template slot-scope="{row}">
           <span>{{ row.profitPresentMonth | valueValidator }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="年化收益率" align="center" sortable sort-method="sortByPercent" prop="annualRate">
+      <el-table-column label="年化收益率" align="center" sortable :sort-method="sortAnnual" prop="annualRate">
         <template slot-scope="{row}">
           <span>{{ row.annualRate | valueValidator }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="最大回撤" align="center" sortable sort-method="sortByPercent" prop="maxDrawDown">
+      <el-table-column label="最大回撤" align="center" sortable :sort-method="sortMaxDrawdown" prop="maxDrawDown">
         <template slot-scope="{row}">
           <span>{{ row.maxDrawDown | valueValidator }}</span>
         </template>
@@ -116,8 +122,24 @@
         </template>
       </el-table-column>
     </el-table>
-    <el-dialog :key="Math.random()" :close-on-click-modal="false" :title="currentName" :visible.sync="retDialogVisible" width="80%" class="statisticDialog" @close="handleClearChart">
-      <simplechart :key="Math.random()" width="100%" height="500px" :category.sync="currentCategory" :data.sync="currentData" :serie-name.sync="data" title="走势图" />
+    <el-dialog
+      :key="Math.random()"
+      :close-on-click-modal="false"
+      :title="currentName"
+      :visible.sync="retDialogVisible"
+      width="80%"
+      class="statisticDialog"
+      @close="handleClearChart"
+    >
+      <simplechart
+        :key="Math.random()"
+        width="100%"
+        height="500px"
+        :category.sync="currentCategory"
+        :data.sync="currentData"
+        :serie-name.sync="data"
+        title="走势图"
+      />
       <div>
         <span>数据概览</span>
       </div>
@@ -151,6 +173,7 @@
 import store from '@/store/index'
 import simplechart from '@/components/Charts/SingleDataLineChart'
 import fundSummary from '@/components/Panel/FundSummary'
+
 export default {
   name: 'FundOverView',
   filters: {
@@ -175,8 +198,7 @@ export default {
       list: [],
       listLoading: false,
       retDialogVisible: false,
-      retContainer: {
-      },
+      retContainer: {},
       listQuery: {
         page: 1,
         limit: 20,
@@ -225,8 +247,17 @@ export default {
     strategyFilterHandler(value, row, column) {
       return row.strategy.indexOf(value) >= 0
     },
-    sortByPercent(a, b) {
-      return (a, b) => parseFloat(a.split('%')[0]) - parseFloat(b.split('%')[0])
+    sortWeekly(a, b) {
+      return parseFloat(a.profitPresentWeek) - parseFloat(b.profitPresentWeek)
+    },
+    sortMonthly(a, b) {
+      return parseFloat(a.profitPresentMonth) - parseFloat(b.profitPresentMonth)
+    },
+    sortAnnual(a, b) {
+      return parseFloat(a.annualRate) - parseFloat(b.annualRate)
+    },
+    sortMaxDrawdown(a, b) {
+      return parseFloat(a.maxDrawDown) - parseFloat(b.maxDrawDown)
     }
   }
 
@@ -234,9 +265,9 @@ export default {
 </script>
 
 <style scoped>
-.statisticDialog{
-  align-items: center;
-  align-content: center;
-  child-align: middle;
-}
+  .statisticDialog {
+    align-items: center;
+    align-content: center;
+    child-align: middle;
+  }
 </style>

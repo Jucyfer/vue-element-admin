@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-progress class="progress_style" :text-inside="true" :stroke-width="26" :percentage="70" />
+    <el-progress class="progress_style" :text-inside="true" :stroke-width="26" :percentage="percentage" :status="percentage==100?'success':'warning'" />
     <el-table
       :key="tableKey"
       v-loading="listLoading"
@@ -53,6 +53,7 @@
       :visible.sync="dialogFormVisible"
       width="80%"
       :close-on-click-modal="false"
+      @close="getList"
     >
       <el-form
         ref="dataForm"
@@ -106,6 +107,7 @@
 import waves from '@/directive/waves' // waves directive
 import MarkdownEditor from '@/components/MarkdownEditor'
 import DynamicTable from '@/views/table/DynamicTable'
+import SingleFile from '@/components/Upload/SingleFile'
 
 // arr to obj, such as { CN : "China", US : "USA" }
 // const calendarTypeKeyValue = calendarTypeOptions.reduce((acc, cur) => {
@@ -116,7 +118,7 @@ import DynamicTable from '@/views/table/DynamicTable'
 export default {
   name: 'UsrAllReportsAdmin',
   // eslint-disable-next-line vue/no-unused-components
-  components: { MarkdownEditor, DynamicTable },
+  components: { MarkdownEditor, DynamicTable, SingleFile },
   directives: { waves },
   filters: {
     componentFilter(isStr) {
@@ -134,6 +136,9 @@ export default {
           break
         case 'cascade':
           realIs = 'el-cascader-panel'
+          break
+        case 'singleFile':
+          realIs = 'single-file'
           break
         default:
           realIs = 'el-input'
@@ -268,6 +273,11 @@ export default {
       downloadLoading: false
     }
   },
+  computed: {
+    percentage() {
+      return this.list ? this.list.map(e => e.status!=0).reduce((a, b) => a + b) * 20 : 0
+    }
+  },
   async created() {
     this.getList()
     this.$store.dispatch('questCommon/init_quest_CN_Map')
@@ -298,7 +308,6 @@ export default {
         this.currentStepData = this.getXstep(this.currentStep)
       }
     },
-    // todo :这个地方有bug,当重新加载的时候没有双向同步,导致问题表格消失
     listenChange(data) {
       this.selectedCascade = data
       console.log(data)
@@ -389,6 +398,7 @@ export default {
           flag = true
           break
         case '资料清单':
+          flag = true
           break
         default:
           break

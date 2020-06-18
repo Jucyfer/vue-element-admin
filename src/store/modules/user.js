@@ -1,6 +1,7 @@
 import { getSecureKey, login, logout, register, getInfo, keepalive } from '@/api/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import router, { resetRouter } from '@/router'
+import { JSEncrypt } from 'encryptlong'
 // import axios from 'axios'
 const state = {
   token: getToken(),
@@ -51,10 +52,10 @@ const actions = {
   // user login
   async login({ commit }, userInfo) {
     const key = await getSecureKey()
-    const JSEncrypt = require('node-jsencrypt')
+    // const JSEncrypt = require('node-jsencrypt')
     const jse = new JSEncrypt()
     jse.setPublicKey(key)
-    const encrypted = jse.encrypt(JSON.stringify(userInfo))
+    const encrypted = jse.encryptLong(JSON.stringify(userInfo))
     return new Promise((resolve, reject) => {
       login(encrypted).then(response => {
         const mytoken = response
@@ -62,6 +63,8 @@ const actions = {
           commit('SET_TOKEN', mytoken)
           setToken(mytoken)
           resolve()
+        } else {
+          reject(new Error('登录失败'))
         }
       }).catch(error => {
         reject(error)
@@ -71,19 +74,21 @@ const actions = {
   // user register
   async register({ commit }, regForm) {
     const key = await getSecureKey()
-    const JSEncrypt = require('node-jsencrypt')
+    // const JSEncrypt = require('node-jsencrypt')
     const jse = new JSEncrypt()
     jse.setPublicKey(key)
-    const encrypted = jse.encrypt(JSON.stringify(regForm))
+    const encrypted = jse.encryptLong(JSON.stringify(regForm))
     return new Promise((resolve, reject) => {
       register(encrypted).then(response => {
         const resp = response
         console.log(resp)
-        // if (mytoken) {
+        if (resp) {
         //   commit('SET_TOKEN', mytoken)
         //   setToken(mytoken)
-        //   resolve()
-        // }
+          resolve()
+        } else {
+          reject(new Error('注册失败'))
+        }
       }).catch(error => {
         reject(error)
       })

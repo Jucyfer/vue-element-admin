@@ -108,12 +108,14 @@
         <!--          autocomplete="off"-->
         <!--        />-->
         <el-select
-          v-model="selectedCompany"
+          :value="regForm.company"
           filterable
           remote
           placeholder="company or pid"
           :loading="companyLoading"
           :remote-method="companyRemoteMethod"
+          @change="bindChange"
+          tabindex="6"
         >
           <el-option
             v-for="item in companyRemoteList"
@@ -160,40 +162,43 @@
         <el-input
           ref="businessCard"
           v-model="regForm.businessCard"
-          placeholder="businessCard"
+          placeholder="click bellow to upload"
           name="businessCard"
           type="text"
           tabindex="9"
           autocomplete="off"
+          :readonly="true"
         />
+        <el-upload
+          class="avatar-uploader"
+          action="/common/upload/businesscard"
+          :show-file-list="false"
+          :on-success="handleBusinessCardSuccess"
+          tabindex="10"
+        >
+          <img v-if="businessCardFacade" :src="businessCardFacade" class="avatar">
+          <!--        <i v-else class="el-icon-plus avatar-uploader-icon"></i>-->
+          <i v-else class="el-icon-picture avatar-uploader-icon"></i>
+        </el-upload>
       </el-form-item>
+
       <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">Submit</el-button>
 
-      <div style="position:relative">
-        <div class="tips">
-          <!--          <span>Username : admin</span>-->
-          <!--          <span>Password : any</span>-->
-        </div>
-        <div class="tips">
-          <!--          <span style="margin-right:18px;">Username : editor</span>-->
-          <!--          <span>Password : any</span>-->
-        </div>
+      <!--      <div style="position:relative">-->
+      <!--        <div class="tips">-->
+      <!--          &lt;!&ndash;          <span>Username : admin</span>&ndash;&gt;-->
+      <!--          &lt;!&ndash;          <span>Password : any</span>&ndash;&gt;-->
+      <!--        </div>-->
+      <!--        <div class="tips">-->
+      <!--          &lt;!&ndash;          <span style="margin-right:18px;">Username : editor</span>&ndash;&gt;-->
+      <!--          &lt;!&ndash;          <span>Password : any</span>&ndash;&gt;-->
+      <!--        </div>-->
 
-        <!--        <el-button class="thirdparty-button" type="primary" @click="showDialog=true">-->
-        <!--          Or connect with-->
-        <!--        </el-button>-->
-      </div>
+      <!--        &lt;!&ndash;        <el-button class="thirdparty-button" type="primary" @click="showDialog=true">&ndash;&gt;-->
+      <!--        &lt;!&ndash;          Or connect with&ndash;&gt;-->
+      <!--        &lt;!&ndash;        </el-button>&ndash;&gt;-->
+      <!--      </div>-->
     </el-form>
-    <el-upload
-      class="avatar-uploader"
-      action="/common/upload/businesscard"
-      :show-file-list="false"
-      :on-success="handleBusinessCardSuccess"
-      :before-upload="beforeBusinessCardUpload"
-    >
-      <img v-if="regForm.businessCardFacade" :src="regForm.businessCardFacade" class="avatar">
-      <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-    </el-upload>
 
     <!--    <el-dialog title="Or connect with" :visible.sync="showDialog">-->
     <!--      Can not be simulated on local, so please combine you own business simulation! ! !-->
@@ -259,6 +264,7 @@ export default {
       companyLoading: false,
       companyRemoteList: [],
       selectedCompany: {},
+      businessCardFacade: '',
       regForm: {
         name: '',
         auth: '',
@@ -269,8 +275,7 @@ export default {
         orgId: '',
         position: [],
         mail: '',
-        businessCard: '',
-        businessCardFacade: ''
+        businessCard: ''
       },
       regRules: {
         // name: [{ required: true, trigger: 'blur', validator: validateUsername }],
@@ -323,6 +328,9 @@ export default {
     // window.removeEventListener('storage', this.afterQRScan)
   },
   methods: {
+    bindChange(e) {
+      this.selectedCompany = e
+    },
     companyRemoteMethod: _.debounce(async function(keyword) {
       if (!keyword) {
         return
@@ -334,7 +342,8 @@ export default {
     }, 666),
     handleBusinessCardSuccess(res, file) {
       console.log(res)
-      this.regForm.businessCardFacade = URL.createObjectURL(file.raw)
+      this.regForm.businessCard = res
+      this.businessCardFacade = URL.createObjectURL(file.raw)
     },
     checkCapslock(e) {
       const { key } = e
@@ -354,16 +363,19 @@ export default {
       this.$refs.regForm.validate(valid => {
         if (valid) {
           this.loading = true
-          this.$store.dispatch('user/reg', this.regForm)
+          this.$store.dispatch('user/register', this.regForm)
             .then(() => {
-              this.$router.push({ path: this.redirect || '/', query: this.otherQuery })
+              // this.$router.push({ path: this.redirect || '/', query: this.otherQuery })
+              this.$message.success('注册成功！')
+              this.$router.push({ path: '/login' })
               this.loading = false
             })
             .catch(() => {
+              this.$message.error('提交失败！请联系管理员！')
               this.loading = false
             })
         } else {
-          console.log('error submit!!')
+          this.$message.error('请正确填写表格！')
           return false
         }
       })
@@ -545,8 +557,12 @@ $light_gray:#eee;
 }
 </style>
 
-<style scoped>
+<style lang="scss" scoped>
+  .el-upload {
+    display: block!important;
+  }
   .avatar-uploader .el-upload {
+    /*display: flex;*/
     border: 1px dashed #d9d9d9;
     border-radius: 6px;
     cursor: pointer;
@@ -557,16 +573,17 @@ $light_gray:#eee;
     border-color: #409EFF;
   }
   .avatar-uploader-icon {
-    font-size: 28px;
+    font-size: 70px;
     color: #8c939d;
-    width: 178px;
+    width: 100%;
     height: 178px;
     line-height: 178px;
     text-align: center;
   }
   .avatar {
-    width: 178px;
+    width: 100%;
     height: 178px;
     display: block;
+    text-align: center;
   }
 </style>
