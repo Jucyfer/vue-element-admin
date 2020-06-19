@@ -194,6 +194,20 @@ export const constantRoutes = [
         meta: { title: 'Profile', icon: 'user', noCache: true }
       }
     ]
+  },
+  {
+    path: '/settings',
+    component: Layout,
+    redirect: '/settings/index',
+    hidden: true,
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/settings/index'),
+        name: 'Settings',
+        meta: { title: 'Settings', icon: 'settings', noCache: true }
+      }
+    ]
   }
 ]
 

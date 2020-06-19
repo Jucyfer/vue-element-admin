@@ -1,62 +1,115 @@
 <template>
   <el-card style="margin-bottom:20px;">
     <div slot="header" class="clearfix">
-      <span>About me</span>
+      <span>摘要</span>
     </div>
 
     <div class="user-profile">
-      <div class="box-center">
-        <pan-thumb :image="user.avatar" :height="'100px'" :width="'100px'" :hoverable="false">
-          <div>Hello</div>
-          {{ user.role }}
-        </pan-thumb>
-      </div>
+      <!--      <div class="box-center">-->
+      <!--        <pan-thumb :image="user.avatar" :height="'100px'" :width="'100px'" :hoverable="false">-->
+      <!--        <div>Hello</div>-->
+      <!--        {{ user.com }}-->
+      <!--        </pan-thumb>-->
+      <!--      </div>-->
       <div class="box-center">
         <div class="user-name text-center">{{ user.name }}</div>
-        <div class="user-role text-center text-muted">{{ user.role | uppercaseFirst }}</div>
+        <!--        <div class="user-role text-center text-muted">{{ user.role | uppercaseFirst }}</div>-->
+        <div class="user-role text-center text-muted">{{ user.com }}</div>
       </div>
     </div>
 
     <div class="user-bio">
       <div class="user-education user-bio-section">
-        <div class="user-bio-section-header"><svg-icon icon-class="education" /><span>Education</span></div>
+        <div class="user-bio-section-header"><svg-icon icon-class="education" /><span>用户信息</span></div>
         <div class="user-bio-section-body">
-          <div class="text-muted">
-            JS in Computer Science from the University of Technology
-          </div>
+          <!--          <div class="text-muted">-->
+          <!--            测试文字-->
+          <!--          </div>-->
+          <el-row gutter="20">
+            <el-col span="8">
+              姓名
+            </el-col>
+            <el-col span="16">
+              {{ user.name }}
+            </el-col>
+          </el-row>
+          <el-row gutter="20">
+            <el-col span="8">
+              公司名称
+            </el-col>
+            <el-col span="16">
+              {{ user.com }}
+            </el-col>
+          </el-row>
+          <el-row gutter="20">
+            <el-col span="8">
+              职务
+            </el-col>
+            <el-col span="16">
+              <el-tag v-for="item in user.position" :key="item + Math.random()">{{ item | positionFilter }}</el-tag>
+            </el-col>
+          </el-row>
+          <el-row gutter="20">
+            <el-col span="8">
+              手机号
+            </el-col>
+            <el-col span="16">
+              {{ user.mobile }}
+            </el-col>
+          </el-row>
+          <el-row gutter="20">
+            <el-col span="8">
+              邮箱
+            </el-col>
+            <el-col span="16">
+              {{ user.mail }}
+            </el-col>
+          </el-row>
+          <el-row gutter="20">
+            <el-col span="8">
+              <el-link type="primary" @click.prevent="$router.push({ path: '/settings' })">
+                点击此处修改信息
+              </el-link>
+            </el-col>
+          </el-row>
         </div>
       </div>
 
-      <div class="user-skills user-bio-section">
-        <div class="user-bio-section-header"><svg-icon icon-class="skill" /><span>Skills</span></div>
-        <div class="user-bio-section-body">
-          <div class="progress-item">
-            <span>Vue</span>
-            <el-progress :percentage="70" />
-          </div>
-          <div class="progress-item">
-            <span>JavaScript</span>
-            <el-progress :percentage="18" />
-          </div>
-          <div class="progress-item">
-            <span>Css</span>
-            <el-progress :percentage="12" />
-          </div>
-          <div class="progress-item">
-            <span>ESLint</span>
-            <el-progress :percentage="100" status="success" />
-          </div>
-        </div>
-      </div>
+      <!--      <div class="user-skills user-bio-section">-->
+      <!--        <div class="user-bio-section-header"><svg-icon icon-class="skill" /><span>以下忽略</span></div>-->
+      <!--        <div class="user-bio-section-body">-->
+      <!--          <div class="progress-item">-->
+      <!--            <span>Vue</span>-->
+      <!--            <el-progress :percentage="70" />-->
+      <!--          </div>-->
+      <!--          <div class="progress-item">-->
+      <!--            <span>JavaScript</span>-->
+      <!--            <el-progress :percentage="18" />-->
+      <!--          </div>-->
+      <!--          <div class="progress-item">-->
+      <!--            <span>Css</span>-->
+      <!--            <el-progress :percentage="12" />-->
+      <!--          </div>-->
+      <!--          <div class="progress-item">-->
+      <!--            <span>ESLint</span>-->
+      <!--            <el-progress :percentage="100" status="success" />-->
+      <!--          </div>-->
+      <!--        </div>-->
+      <!--      </div>-->
     </div>
   </el-card>
 </template>
 
 <script>
-import PanThumb from '@/components/PanThumb'
-
+// import PanThumb from '@/components/PanThumb'
+import store from '@/store/index'
 export default {
-  components: { PanThumb },
+  // components: { PanThumb },
+  filters: {
+    positionFilter(param) {
+      return store.getters.employeepositionTranslation[param]
+    }
+  },
   props: {
     user: {
       type: Object,
@@ -64,8 +117,12 @@ export default {
         return {
           name: '',
           email: '',
-          avatar: '',
-          roles: ''
+          // avatar: '',
+          roles: '',
+          mobile: '',
+          mail: '',
+          position: [],
+          businessCardId: ''
         }
       }
     }

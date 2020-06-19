@@ -1,4 +1,4 @@
-import { getSecureKey, login, logout, register, getInfo, keepalive } from '@/api/user'
+import { getSecureKey, login, logout, register, getInfo, updateUserInfo, keepalive } from '@/api/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import router, { resetRouter } from '@/router'
 import { JSEncrypt } from 'encryptlong'
@@ -12,7 +12,11 @@ const state = {
   roles: [],
   aliveid: 0,
   com: '',
-  comId: ''
+  comId: '',
+  mobile: '',
+  mail: '',
+  businessCardId: '',
+  position: []
 }
 
 const mutations = {
@@ -42,6 +46,18 @@ const mutations = {
   },
   SET_COM_ID: (state, comId) => {
     state.comId = comId
+  },
+  SET_MOBILE: (state, mobile) => {
+    state.mobile = mobile
+  },
+  SET_MAIL: (state, mail) => {
+    state.mail = mail
+  },
+  SET_POSITION: (state, position) => {
+    state.position = position
+  },
+  SET_BUSINESSCARDID: (state, businessCardId) => {
+    state.businessCardId = businessCardId
   }
 }
 
@@ -103,18 +119,11 @@ const actions = {
         if (!data) {
           reject('Verification failed, please Login again.')
         }
-
-        const { roles, name, avatar, introduction, userid, com, comId } = data
-
+        const { roles, name, avatar, introduction, userid, com, comId, mobile, mail, position, businessCardId } = data
         // roles must be a non-empty array
         // if (!roles || roles.length <= 0) {
         //   reject('getInfo: roles must be a non-null array!')
         // }
-        // console.log(roles)
-        // console.log(name)
-        // console.log(avatar)
-        // console.log(introduction)
-        // console.log(userid)
         commit('SET_ROLES', roles)
         commit('SET_NAME', name)
         commit('SET_AVATAR', avatar)
@@ -122,7 +131,32 @@ const actions = {
         commit('SET_USERID', userid)
         commit('SET_COM', com)
         commit('SET_COM_ID', comId)
+        commit('SET_MOBILE', mobile)
+        commit('SET_MAIL', mail)
+        commit('SET_POSITION', position)
+        commit('SET_BUSINESSCARDID', businessCardId)
         resolve(data)
+      }).catch(error => {
+        reject(error)
+      })
+    })
+  },
+
+  // update user info
+  async updateInfo({ commit }, infoForm) {
+    const key = await getSecureKey()
+    const jse = new JSEncrypt()
+    jse.setPublicKey(key)
+    const encrypted = jse.encryptLong(JSON.stringify(infoForm))
+    return new Promise((resolve, reject) => {
+      updateUserInfo(encrypted).then(response => {
+        const resp = response
+        console.log(resp)
+        if (resp) {
+          resolve()
+        } else {
+          reject(new Error('失败'))
+        }
       }).catch(error => {
         reject(error)
       })

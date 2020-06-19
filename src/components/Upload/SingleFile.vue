@@ -11,7 +11,13 @@
       <el-button v-if="!currentValue" size="small" type="primary">点击上传</el-button>
       <span style="display: block;cursor:pointer">文件序列号:{{ value }}</span>
     </el-upload>
-    <el-button size="small" type="primary" @click="handleDownload">点击下载</el-button>
+    <el-link
+      v-if="currentValue"
+      :href="'/secure/invest/attachment/'+$store.getters.token+'/'+ $store.getters.userid +'/'+currentValue"
+      target="_blank"
+    >
+      <el-button size="small" type="primary">点击下载</el-button>
+    </el-link>
   </div>
 </template>
 
@@ -43,10 +49,6 @@ export default {
     handleError(err, file) {
       console.log(file, err)
       this.$message.error('上传失败')
-    },
-    handleDownload() {
-      // this.$axios.get('/secure/invest/attachment/' + this.$store.getters.comId + '/' + this.currentValue + '?userid=' + this.$store.getters.userid)
-      this.$message.warning('下载功能当前暂不开放，请谅解！')
     }
   }
 }

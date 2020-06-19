@@ -1,4 +1,5 @@
 import request from '@/utils/request'
+import store from '@/store/index'
 // import axios from 'axios'
 export function getSecureKey() {
   return request({
@@ -35,7 +36,15 @@ export function getInfo() {
     method: 'get'
   })
 }
-
+export function updateUserInfo(data) {
+  return request({
+    // url: '/vue-element-admin/user/login',
+    url: '/secure/userInfo/' + store.getters.userid,
+    method: 'post',
+    data,
+    headers: { 'Content-Type': 'text/plain;charset=UTF-8' }
+  })
+}
 export function logout() {
   return request({
     url: '/vue-element-admin/user/logout',

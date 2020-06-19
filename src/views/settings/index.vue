@@ -1,0 +1,74 @@
+<template>
+  <div class="app-container">
+    <el-row :gutter="20">
+      <!--      <el-col :span="12" :xs="24">-->
+      <!--        <user-card :user="user" />-->
+      <!--      </el-col>-->
+      <el-col :span="18" :xs="24">
+        <el-card>
+          <el-tabs v-model="activeTab">
+<!--            <el-tab-pane label="Activity" name="activity">-->
+<!--              <activity />-->
+<!--            </el-tab-pane>-->
+<!--            <el-tab-pane label="Timeline" name="timeline">-->
+<!--              <timeline />-->
+<!--            </el-tab-pane>-->
+            <el-tab-pane label="账户信息设置" name="account">
+              <account :user="user" />
+            </el-tab-pane>
+          </el-tabs>
+        </el-card>
+      </el-col>
+    </el-row>
+  </div>
+</template>
+
+<script>
+import { mapGetters } from 'vuex'
+// import Activity from './components/Activity'
+// import Timeline from './components/Timeline'
+import Account from './components/Account'
+export default {
+  name: 'Settings',
+  components: {
+    // Activity,
+    // Timeline,
+    Account
+  },
+  data() {
+    return {
+      user: {},
+      activeTab: 'account'
+    }
+  },
+  computed: {
+    ...mapGetters([
+      'name',
+      'avatar',
+      'roles'
+    ])
+  },
+  created() {
+    this.getUser()
+  },
+  methods: {
+    async getUser() {
+      await this.$store.dispatch('user/getInfo')
+      this.user = {
+        name: this.name,
+        // role: this.roles.join(' | '),
+        // avatar: this.avatar,
+        com: this.$store.getters.com,
+        mobile: this.$store.getters.mobile,
+        mailaddr: this.$store.getters.mail,
+        position: this.$store.getters.position,
+        businessCardId: this.$store.getters.businessCardId
+      }
+    }
+  }
+}
+</script>
+
+<style scoped>
+
+</style>

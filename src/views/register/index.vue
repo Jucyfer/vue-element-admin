@@ -98,15 +98,6 @@
         <span class="svg-container">
           <svg-icon icon-class="company" />
         </span>
-        <!--        <el-input-->
-        <!--          ref="company"-->
-        <!--          v-model="regForm.company"-->
-        <!--          placeholder="company"-->
-        <!--          name="company"-->
-        <!--          type="text"-->
-        <!--          tabindex="6"-->
-        <!--          autocomplete="off"-->
-        <!--        />-->
         <el-select
           :value="regForm.company"
           filterable
