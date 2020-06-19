@@ -8,10 +8,10 @@
         <div>{{ currentUser.com }}</div>
       </el-form-item>
       <el-form-item label="新密码（留空即不更改）" prop="auth">
-        <el-input v-model.trim="currentUser.auth" />
+        <el-input v-model.trim="currentUser.auth" type="password" />
       </el-form-item>
       <el-form-item v-if="currentUser.auth" label="确认新密码（留空即不更改）" prop="retypeAuth">
-        <el-input v-model.trim="currentUser.retypeAuth" />
+        <el-input v-model.trim="currentUser.retypeAuth" type="password"  />
       </el-form-item>
       <el-form-item label="职务" prop="position">
         <el-select ref="position" v-model="currentUser.position" style="width:100%" multiple collapse-tags clearable placeholder="position" name="position">
@@ -65,7 +65,7 @@
     <el-dialog title="确认提交" :visible.sync="dialogShow">
       <el-form ref="passForm" :model="currentUser" :rules="formRules">
         <el-form-item label="请输入当前密码" prop="currentAuth">
-          <el-input v-model.trim="currentUser.currentAuth" />
+          <el-input v-model.trim="currentUser.currentAuth" type="password"  />
         </el-form-item>
         <el-form-item>
           <el-button type="danger" @click="submit">确认提交</el-button>
