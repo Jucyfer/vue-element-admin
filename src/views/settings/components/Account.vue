@@ -201,7 +201,7 @@ export default {
   }
 }
 </script>
-<style>
+<style scoped>
   .el-upload,.el-upload__text,.el-input{
     display: block !important;
     width:100% !important;

@@ -1,9 +1,8 @@
 <template>
   <div class="reg-container">
     <el-form ref="regForm" :model="regForm" :rules="regRules" class="reg-form" autocomplete="on" label-position="left">
-
       <div class="title-container">
-        <h3 class="title">Register Form</h3>
+        <h3 class="title">用户注册</h3>
       </div>
 
       <el-form-item prop="name">
@@ -13,7 +12,7 @@
         <el-input
           ref="name"
           v-model="regForm.name"
-          placeholder="Username"
+          placeholder="用户名"
           name="username"
           type="text"
           tabindex="1"
@@ -31,7 +30,7 @@
             ref="auth"
             v-model="regForm.auth"
             :type="passwordType"
-            placeholder="Password"
+            placeholder="登录密码"
             name="password"
             tabindex="2"
             autocomplete="off"
@@ -44,7 +43,7 @@
         </el-form-item>
       </el-tooltip>
       <el-tooltip v-model="capsTooltip" content="Caps lock is On" placement="right" manual>
-        <el-form-item prop="authReCheck">
+        <el-form-item prop="authRecheck">
           <span class="svg-container">
             <svg-icon icon-class="password" />
           </span>
@@ -53,7 +52,7 @@
             ref="auth"
             v-model="regForm.authRecheck"
             :type="passwordType"
-            placeholder="Re-input Password"
+            placeholder="确认登录密码"
             name="authRecheck"
             tabindex="3"
             autocomplete="off"
@@ -73,7 +72,7 @@
         <el-input
           ref="name"
           v-model="regForm.realName"
-          placeholder="realName"
+          placeholder="真实姓名"
           name="realName"
           type="text"
           tabindex="4"
@@ -87,7 +86,7 @@
         <el-input
           ref="mobile"
           v-model="regForm.mobile"
-          placeholder="mobile"
+          placeholder="手机号码"
           name="mobile"
           type="text"
           tabindex="5"
@@ -102,11 +101,11 @@
           :value="regForm.company"
           filterable
           remote
-          placeholder="company or pid"
+          placeholder="公司关键字或完整协会编号"
           :loading="companyLoading"
           :remote-method="companyRemoteMethod"
-          @change="bindChange"
           tabindex="6"
+          @change="bindChange"
         >
           <el-option
             v-for="item in companyRemoteList"
@@ -123,7 +122,7 @@
         <span class="svg-container">
           <svg-icon icon-class="tree" />
         </span>
-        <el-select ref="position" v-model="regForm.position" tabindex="7" multiple collapse-tags clearable placeholder="position" name="position">
+        <el-select ref="position" v-model="regForm.position" tabindex="7" multiple collapse-tags clearable placeholder="职位" name="position">
           <el-option
             v-for="item in $store.getters.employeePositionOptions"
             :key="item.value + Math.random()"
@@ -139,7 +138,7 @@
         <el-input
           ref="mail"
           v-model="regForm.mail"
-          placeholder="mail"
+          placeholder="电子邮箱"
           name="mail"
           type="text"
           tabindex="8"
@@ -153,51 +152,29 @@
         <el-input
           ref="businessCard"
           v-model="regForm.businessCard"
-          placeholder="click bellow to upload"
+          placeholder="点击下方上传图片"
           name="businessCard"
           type="text"
           tabindex="9"
           autocomplete="off"
           :readonly="true"
         />
+        <!--        class="avatar-uploader"-->
         <el-upload
-          class="avatar-uploader"
+          class="avatar-uploader el-uploads"
           action="/common/upload/businesscard"
           :show-file-list="false"
           :on-success="handleBusinessCardSuccess"
           tabindex="10"
         >
           <img v-if="businessCardFacade" :src="businessCardFacade" class="avatar">
-          <!--        <i v-else class="el-icon-plus avatar-uploader-icon"></i>-->
           <i v-else class="el-icon-picture avatar-uploader-icon"></i>
         </el-upload>
       </el-form-item>
 
       <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">Submit</el-button>
-
-      <!--      <div style="position:relative">-->
-      <!--        <div class="tips">-->
-      <!--          &lt;!&ndash;          <span>Username : admin</span>&ndash;&gt;-->
-      <!--          &lt;!&ndash;          <span>Password : any</span>&ndash;&gt;-->
-      <!--        </div>-->
-      <!--        <div class="tips">-->
-      <!--          &lt;!&ndash;          <span style="margin-right:18px;">Username : editor</span>&ndash;&gt;-->
-      <!--          &lt;!&ndash;          <span>Password : any</span>&ndash;&gt;-->
-      <!--        </div>-->
-
-      <!--        &lt;!&ndash;        <el-button class="thirdparty-button" type="primary" @click="showDialog=true">&ndash;&gt;-->
-      <!--        &lt;!&ndash;          Or connect with&ndash;&gt;-->
-      <!--        &lt;!&ndash;        </el-button>&ndash;&gt;-->
-      <!--      </div>-->
     </el-form>
 
-    <!--    <el-dialog title="Or connect with" :visible.sync="showDialog">-->
-    <!--      Can not be simulated on local, so please combine you own business simulation! ! !-->
-    <!--      <br>-->
-    <!--      <br>-->
-    <!--      <br>-->
-    <!--      <social-sign />-->
-    <!--    </el-dialog>-->
   </div>
 </template>
 
@@ -309,11 +286,7 @@ export default {
     // window.addEventListener('storage', this.afterQRScan)
   },
   mounted() {
-    // if (this.regForm.username === '') {
-    //   this.$refs.username.focus()
-    // } else if (this.regForm.password === '') {
-    //   this.$refs.password.focus()
-    // }
+    window.document.getElementsByClassName('el-upload')[0].style.display = 'block'
   },
   destroyed() {
     // window.removeEventListener('storage', this.afterQRScan)
@@ -379,24 +352,6 @@ export default {
         return acc
       }, {})
     }
-    // afterQRScan() {
-    //   if (e.key === 'x-admin-oauth-code') {
-    //     const code = getQueryObject(e.newValue)
-    //     const codeMap = {
-    //       wechat: 'code',
-    //       tencent: 'code'
-    //     }
-    //     const type = codeMap[this.auth_type]
-    //     const codeName = code[type]
-    //     if (codeName) {
-    //       this.$store.dispatch('LoginByThirdparty', codeName).then(() => {
-    //         this.$router.push({ path: this.redirect || '/' })
-    //       })
-    //     } else {
-    //       alert('第三方登录失败')
-    //     }
-    //   }
-    // }
   }
 }
 </script>
@@ -418,7 +373,7 @@ $cursor: #fff;
 /* reset element-ui css */
 .reg-container {
   .el-input {
-    display: inline-block;
+    /*display: inline-block;*/
     height: 47px;
     width: 85%;
 
@@ -439,7 +394,7 @@ $cursor: #fff;
     }
   }
   .el-select {
-    display: inline-block;
+    /*display: inline-block;*/
     height: 47px;
     width: 90%;
     .el-input {
@@ -467,6 +422,7 @@ $cursor: #fff;
     background: rgba(0, 0, 0, 0.1);
     border-radius: 5px;
     color: #454545;
+
   }
 }
 </style>
@@ -547,13 +503,14 @@ $light_gray:#eee;
   }
 }
 </style>
-
-<style lang="scss" scoped>
-  .el-upload {
-    display: block!important;
+<style scoped>
+  .el-uploads .el-upload__text{
+    display: block !important;
   }
+  /*.avatar-uploader * {*/
+  /*  display: block !important;*/
+  /*}*/
   .avatar-uploader .el-upload {
-    /*display: flex;*/
     border: 1px dashed #d9d9d9;
     border-radius: 6px;
     cursor: pointer;

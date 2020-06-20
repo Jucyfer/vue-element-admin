@@ -59,19 +59,50 @@
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="{row,$index}">
-          <!--          编辑基金信息-->
-          <el-button size="mini" type="success" @click="handleExamine(row)">
+          <el-button size="mini" type="success" @click="uploadDialogVisible=true">
             编辑
           </el-button>
-          <!--          弹框净值走势-->
           <el-button size="mini" type="success" @click="handleExamine(row)">
             查看
           </el-button>
         </template>
       </el-table-column>
     </el-table>
-    <el-dialog :key="Math.random()" :title="currentName" :visible.sync="retDialogVisible" @close="handleClearChart" width="80%">
-      <simplechart width="100%" height="500px" :key="Math.random()" :category.sync="currentCategory" :data.sync="currentData" serie-name="data" title="走势图" />
+    <el-dialog :key="Math.random()" title="净值批量上传" :visible.sync="uploadDialogVisible" width="80%">
+      <el-row gutter="20">
+        <el-col span="6">
+          <div style="line-height: 1.5; font-size: 16px">请选择净值上传方式</div>
+        </el-col>
+      </el-row>
+      <el-row gutter="20">
+        <el-col span="24">
+          <el-tabs type="border-card">
+            <el-tab-pane label="手工上传">
+              <div style="line-height: 1.5;font-size: 14px">--手工上传代码施工区--</div>
+            </el-tab-pane>
+            <el-tab-pane label="托管邮箱">
+              <div class="content-container">
+                <el-row gutter="20">
+                  <el-col span="24">
+                    <div style="color:#F56C6C;line-height: 1.5;font-size: 14px">为方便后期业绩跟踪，请将下面邮箱地址复制黏贴到产品所在托管，绑定成功前的净值请以模板自行上传或者联系管理员</div>
+                  </el-col>
+                </el-row>
+                <el-row>
+                  <el-col span="24">
+                    <el-input value="dataori@110972.tech" readonly style="width:400px;max-width:100%;" />
+                    <el-button v-clipboard:copy="'dataori@110972.tech'" v-clipboard:success="handleClipSuccess" type="primary" icon="el-icon-document">
+                      复制邮箱地址
+                    </el-button>
+                  </el-col>
+                </el-row>
+              </div>
+            </el-tab-pane>
+          </el-tabs>
+        </el-col>
+      </el-row>
+    </el-dialog>
+    <el-dialog :key="Math.random()" :title="currentName" :visible.sync="retDialogVisible" width="80%" @close="handleClearChart">
+      <simplechart :key="Math.random()" width="100%" height="500px" :category.sync="currentCategory" :data.sync="currentData" serie-name="data" title="走势图" />
     </el-dialog>
     <!--    <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />-->
   </div>
@@ -80,8 +111,12 @@
 <script>
 import store from '@/store/index'
 import simplechart from '@/components/Charts/SingleDataLineChart'
+import clipboard from '@/directive/clipboard/index.js' // use clipboard by v-directive
 export default {
   name: 'FundValueInfoList',
+  directives: {
+    clipboard
+  },
   filters: {
     valueValidator(param) {
       return param == null || param == 0 ? '--' : param
@@ -101,6 +136,7 @@ export default {
       list: [],
       listLoading: false,
       retDialogVisible: false,
+      uploadDialogVisible: false,
       retContainer: {
       },
       listQuery: {
@@ -146,12 +182,27 @@ export default {
     },
     sourceFilterHandler(value, row, column) {
       return row.lastFrom && row.lastFrom.indexOf(value) >= 0
+    },
+    handleClipSuccess() {
+      this.$message({
+        message: '已复制到剪贴板',
+        type: 'success',
+        duration: 1500
+      })
     }
   }
 
 }
 </script>
 
-<style scoped>
-
+<style lang="scss" scoped>
+.el-row {
+  margin-bottom: 32px;
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+.content-container{
+  padding:24px;
+}
 </style>
