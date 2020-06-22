@@ -233,7 +233,7 @@ export default {
         'label': '期权类'
       }, {
         'value': 'bonds',
-        'label': '债券类'
+        'label': '债权类'
       }, {
         'value': 'macroHedges',
         'label': '宏观对冲类'

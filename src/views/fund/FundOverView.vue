@@ -29,13 +29,20 @@
       border
       fit
       highlight-current-row
+      max-height="800"
       style="width: 100%;height:100%"
     >
-      <el-table-column label="序号" width="63px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.id }}</span>
-        </template>
-      </el-table-column>
+      <el-table-column
+        type="index"
+        width="50px"
+        label="序号"
+        align="center"
+      ></el-table-column>
+      <!--      <el-table-column label="序号" width="63px" align="center">-->
+      <!--        <template slot-scope="{row}">-->
+      <!--          <span>{{ row.id }}</span>-->
+      <!--        </template>-->
+      <!--      </el-table-column>-->
       <el-table-column label="基金产品" align="center">
         <template slot-scope="{row}">
           <span>{{ row.fundName }}</span>
@@ -131,39 +138,43 @@
       class="statisticDialog"
       @close="handleClearChart"
     >
-      <simplechart
-        :key="Math.random()"
-        width="100%"
-        height="500px"
-        :category.sync="currentCategory"
-        :data.sync="currentData"
-        :serie-name.sync="data"
-        title="走势图"
-      />
-      <div>
+      <el-row gutter="20" class="container-row">
+        <simplechart
+          :key="Math.random()"
+          width="100%"
+          height="500px"
+          :category.sync="currentCategory"
+          :data.sync="currentData"
+          :serie-name.sync="data"
+          title="走势图"
+        />
+      </el-row>
+      <el-row gutter="20" class="container-row">
         <span>数据概览</span>
-      </div>
+      </el-row>
       <fund-summary :key="Math.random()" width="100%" :fund-data="currentRow"></fund-summary>
-      <div>
+      <el-row gutter="20" class="container-row">
         <span>净值明细</span>
-      </div>
-      <el-table
-        :data="currentDisplay"
-        border
-        fit
-        max-height="600px"
-      >
-        <el-table-column label="日期" align="center" sortable prop="date">
-          <template slot-scope="{row}">
-            <span>{{ row.date }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="净值" align="center">
-          <template slot-scope="{row}">
-            <span>{{ row.value }}</span>
-          </template>
-        </el-table-column>
-      </el-table>
+      </el-row>
+      <el-row gutter="20" class="container-row">
+        <el-table
+          :data="currentDisplay"
+          border
+          fit
+          max-height="600px"
+        >
+          <el-table-column label="日期" align="center" sortable prop="date">
+            <template slot-scope="{row}">
+              <span>{{ row.date }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column label="净值" align="center">
+            <template slot-scope="{row}">
+              <span>{{ row.value }}</span>
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-row>
     </el-dialog>
     <!--    <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />-->
   </div>
@@ -245,6 +256,12 @@ export default {
       this.$forceUpdate()
     },
     strategyFilterHandler(value, row, column) {
+      // return row.strategy.indexOf(value) >= 0
+      row.strategy.some(e => {
+        switch (value) {
+          case 'notnull':
+        }
+      })
       return row.strategy.indexOf(value) >= 0
     },
     sortWeekly(a, b) {
@@ -269,5 +286,10 @@ export default {
     align-items: center;
     align-content: center;
     child-align: middle;
+  }
+  .container-row{
+    line-height: 1.5;
+    padding-top: 10px;
+    padding-bottom: 10px;
   }
 </style>

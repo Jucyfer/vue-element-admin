@@ -164,5 +164,9 @@ export default {
 </script>
 
 <style scoped>
-
+.el-row{
+  line-height: 1.5;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
 </style>

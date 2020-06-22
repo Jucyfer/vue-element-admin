@@ -25,11 +25,12 @@
       highlight-current-row
       style="width: 100%;height:100%"
     >
-      <el-table-column label="序号" width="57px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.id }}</span>
-        </template>
-      </el-table-column>
+      <el-table-column
+        type="index"
+        width="50px"
+        label="序号"
+        align="center"
+      ></el-table-column>
       <el-table-column label="姓名" align="center">
         <template slot-scope="{row}">
           <span>{{ row.userName }}</span>

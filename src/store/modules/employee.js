@@ -20,6 +20,15 @@ const state = {
   }, {
     'value': 'p7',
     'label': '基金经理'
+  }, {
+    'value': 'p8',
+    'label': 'IT'
+  }, {
+    'value': 'p9',
+    'label': '财务'
+  }, {
+    'value': 'p10',
+    'label': '总经理'
   }],
   positionTranslation: {
     'p1': '填报人',
@@ -28,7 +37,10 @@ const state = {
     'p4': '合规风控',
     'p5': '公司高管',
     'p6': '公司法人',
-    'p7': '基金经理'
+    'p7': '基金经理',
+    'p8': 'IT',
+    'p9': '财务',
+    'p10': '总经理'
   }
 }
 const mutations = {}

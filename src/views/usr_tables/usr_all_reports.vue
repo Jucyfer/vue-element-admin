@@ -19,8 +19,15 @@
       border
       fit
       highlight-current-row
+      :default-sort = "{prop: 'lastupdatetime', order: 'descending'}"
       style="width: 100%;"
     >
+      <el-table-column
+        type="index"
+        width="50px"
+        label="序号"
+        align="center"
+      ></el-table-column>
       <el-table-column label="管理人" min-width="150px">
         <template slot-scope="{row}">
           <span class="link-type" @click="handleApproval(row,false)">{{ row.pname }}</span>
@@ -31,7 +38,7 @@
           {{ row.name }}
         </template>
       </el-table-column>
-      <el-table-column label="最后修改时间" class-name="status-col" min-width="110px">
+      <el-table-column label="最后修改时间" class-name="status-col" min-width="110px" sortable prop="lastupdatetime">
         <template slot-scope="{row}">
           {{ row.lastupdatetime }}
         </template>
@@ -225,7 +232,7 @@ export default {
         'label': '期权类'
       }, {
         'value': 'bonds',
-        'label': '债券类'
+        'label': '债权类'
       }, {
         'value': 'macroHedges',
         'label': '宏观对冲类'

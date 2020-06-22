@@ -29,13 +29,15 @@
       border
       fit
       highlight-current-row
+      max-height="800"
       style="width: 100%;height:100%"
     >
-      <el-table-column label="序号" width="57px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.id }}</span>
-        </template>
-      </el-table-column>
+      <el-table-column
+        type="index"
+        width="50px"
+        label="序号"
+        align="center"
+      ></el-table-column>
       <el-table-column label="基金名称" width="144px" align="center">
         <template slot-scope="{row}">
           <span>{{ row.fundName }}</span>
@@ -203,7 +205,7 @@ export default {
     async handleEdit(row) {
       row.isEditMode = !row.isEditMode
       if (!row.isEditMode) {
-        // /infomation/{pid}/fund/{fundId}
+        // /infomation/{pid}/fund/{fundId}/info
         if (row.closeOut == null) {
           row.closeOut = 0.0
         }
@@ -211,7 +213,7 @@ export default {
           row.warnLevel = 0.0
         }
         const { data: result } = await this.$axios.post(
-          '/secure/infomation/' + this.$store.getters.comId + '/fund/' + row.fundId + '?userid=' + this.$store.getters.userid,
+          '/secure/infomation/' + this.$store.getters.comId + '/fund/' + row.fundId + '/info?userid=' + this.$store.getters.userid,
           { strategy: row.strategy, warnLevel: parseFloat(row.warnLevel), closeOut: parseFloat(row.closeOut), isRepresent: row.isRepresent }
         )
         if (!result) {

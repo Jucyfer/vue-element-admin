@@ -90,6 +90,7 @@
           name="mobile"
           type="text"
           tabindex="5"
+          maxlength="11"
           autocomplete="off"
         />
       </el-form-item>
@@ -252,7 +253,7 @@ export default {
         auth: [{ required: true, trigger: 'blur' }],
         authRecheck: [{ required: true, trigger: 'blur', validator: validateRePassword }],
         realName: [{ required: true, trigger: 'blur', min: 2, message: 'Invalid RealName' }],
-        mobile: [{ required: true, trigger: 'blur', min: 7 }],
+        mobile: [{ required: true, trigger: 'blur', min: 7, max: 11 }],
         mail: [{ required: true, trigger: 'blur', validator: validateEmail }],
         company: [{ required: true, trigger: 'blur', message: 'Company can not empty' }],
         position: [{ required: true, trigger: 'change', validator: validateArray }]

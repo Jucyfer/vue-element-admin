@@ -64,7 +64,7 @@ const state = {
     'label': '期权类'
   }, {
     'value': 'bonds',
-    'label': '债券类'
+    'label': '债权类'
   }, {
     'value': 'macroHedges',
     'label': '宏观对冲类'
@@ -100,7 +100,7 @@ const state = {
     'arbitrage': '期货-套利',
     'other_future': '期货-其他',
     'options': '期权类',
-    'bonds': '债券类',
+    'bonds': '债权类',
     'macroHedges': '宏观对冲类',
     'others': '其他',
     'fof': '组合基金-FOF',
@@ -124,7 +124,7 @@ const state = {
     { text: '期货-套利', value: 'arbitrage' },
     { text: '期货-其他', value: 'other_future' },
     { text: '期权类', value: 'options' },
-    { text: '债券类', value: 'bonds' },
+    { text: '债权类', value: 'bonds' },
     { text: '宏观对冲类', value: 'macroHedges' },
     { text: '其他', value: 'others' },
     { text: '组合基金-FOF', value: 'fof' },
