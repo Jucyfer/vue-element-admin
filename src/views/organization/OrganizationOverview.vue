@@ -24,61 +24,70 @@
       fit
       highlight-current-row
       style="width: 100%;height:100%"
+      :max-height="computedHeight"
     >
-      <el-table-column label="序号" width="63px" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.temp }}</span>
-        </template>
-      </el-table-column>
+      <el-table-column
+        type="index"
+        width="50px"
+        label="序号"
+        align="center"
+      ></el-table-column>
       <el-table-column label="基金管理人" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.temp }}</span>
+          <span>{{ row.companyFullName_CH }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="成立日期" align="center">
+      <el-table-column label="成立日期" width="106px" align="center" sortable prop="foundDate">
         <template slot-scope="{row}">
-          <span>{{ row.temp }}</span>
+          <span>{{ row.foundDate | valueValidator | dateFilter }}</span>
         </template>
       </el-table-column>
       <el-table-column
         label="基金策略"
+        width="183px"
         align="center"
+        :filters="$store.getters.strategyTableFilter"
+        :filter-method="strategyFilterHandler"
       >
         <template slot-scope="{row}">
-          <span>{{ row.temp }}</span>
+          <div v-if="!row.strategy.length">--</div>
+          <div :key="Math.random()" v-else>
+            <el-tag v-for="item in row.strategy" :key="item + Math.random()">{{ item | strategyFilter }}</el-tag>
+          </div>
         </template>
       </el-table-column>
       <el-table-column label="经营地址" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.temp }}</span>
+          <span>{{ row.officeAddr | valueValidator }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="投顾资质" align="center">
+      <el-table-column label="投顾资质" width="106px" align="center" sortable prop="isQualifiedAdverseThirdParty">
         <template slot-scope="{row}">
-          <span>{{ row.temp }}</span>
+          <span>{{ row.isQualifiedAdverseThirdParty | valueValidator }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="管理规模" align="center">
+      <el-table-column label="管理规模（万元）" align="center" sortable prop="managementScale">
         <template slot-scope="{row}">
-          <span>{{ row.temp }}</span>
+          <span>{{ (row.managementScale * 10000) | valueValidator }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="协会管理规模" align="center">
+      <el-table-column label="协会管理规模（万元）" align="center" sortable prop="amacFundScale">
         <template slot-scope="{row}">
-          <span>{{ row.temp }}</span>
+          <span>{{ row.amacFundScale | valueValidator }}</span>
         </template>
       </el-table-column>
       <el-table-column label="对接人" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.temp }}</span>
+          <span>{{ row.agent | valueValidator }}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="{row,$index}">
-          <!--          弹框净值走势-->
-          <el-button size="mini" type="success" @click="handleExamine(row)">
-            查看
-          </el-button>
+          <router-link :to="'/orgList/detail/'+row.registrationSerial">
+            <el-button type="primary" size="mini" icon="el-icon-edit">
+              查看
+            </el-button>
+          </router-link>
         </template>
       </el-table-column>
     </el-table>
@@ -86,7 +95,26 @@
 </template>
 
 <script>
+import store from '@/store/index'
 export default {
+  filters: {
+    valueValidator(param) {
+      return param == null || param == 0 ? '--' : param
+    },
+    strategyFilter(param) {
+      return store.getters.strategyMap[param]
+    },
+    dateFilter(param) {
+      if (param === '--') {
+        return param
+      }
+      const date = new Date(parseFloat(param))
+      const mm = date.getMonth() + 1
+      const m = mm < 10 ? '0' + mm : mm
+      const d = date.getDate() < 10 ? '0' + date.getDate() : date.getDate()
+      return date.getFullYear() + '-' + m + '-' + d
+    }
+  },
   data() {
     return {
       listQuery: {
@@ -100,15 +128,39 @@ export default {
       importanceOptions: [1, 2, 3],
       sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
       tableKey: 0,
-      list: [
-        {
-          temp: 'temp'
-        }
-      ],
+      list: [],
       listLoading: false
     }
   },
+  computed: {
+    computedHeight() {
+      const privateHeight = window.document.documentElement.clientHeight || window.document.body.clientHeight
+      return privateHeight - 190
+    }
+  },
+  created() {
+    this.initList()
+  },
   methods: {
+    async initList() {
+      this.listLoading = true
+      const { data } = await this.$axios.get('/secure/infomation/managers?userid=' + this.$store.getters.userid)
+      this.list = data
+      this.listLoading = false
+    },
+    strategyFilterHandler(value, row, column) {
+      // return row.strategy.indexOf(value) >= 0
+      switch (value) {
+        case 'notnull':
+          return row.strategy.length > 0
+        case 'null':
+          return row.strategy.length === 0
+      }
+      // row.strategy.some(e => {
+      //
+      // })
+      return row.strategy.indexOf(value) >= 0
+    },
     handleExamine(row) {
       return
     }

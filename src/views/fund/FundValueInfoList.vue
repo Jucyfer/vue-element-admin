@@ -23,7 +23,7 @@
       border
       fit
       highlight-current-row
-      max-height="800"
+      :max-height="computedHeight"
       style="width: 100%;height:100%"
     >
       <el-table-column
@@ -40,11 +40,6 @@
       <el-table-column label="最新净值" align="center" sortable prop="lastValue">
         <template slot-scope="{row}">
           <span>{{ row.lastValue | valueValidator }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="净值更新日期" align="center" sortable prop="lastDate">
-        <template slot-scope="{row}">
-          <span>{{ row.lastDate | valueValidator }}</span>
         </template>
       </el-table-column>
       <el-table-column label="本周收益" align="center" sortable :sort-method="sortWeekly" prop="profitPresentWeek">
@@ -180,7 +175,7 @@
       class="statisticDialog"
       @close="handleClearChart"
     >
-      <el-row gutter="20"  class="container-row">
+      <el-row gutter="20" class="container-row">
         <simplechart
           :key="Math.random()"
           width="100%"
@@ -191,14 +186,14 @@
           title="走势图"
         />
       </el-row>
-      <el-row gutter="20"  class="container-row">
+      <el-row gutter="20" class="container-row">
         <span>数据概览</span>
       </el-row>
       <fund-summary :key="Math.random()" width="100%" :fund-data="currentRow"></fund-summary>
-      <el-row gutter="20"  class="container-row">
+      <el-row gutter="20" class="container-row">
         <span>净值明细</span>
       </el-row>
-      <el-row gutter="20"  class="container-row">
+      <el-row gutter="20" class="container-row">
         <el-table
           :data="currentDisplay"
           border
@@ -246,6 +241,9 @@ export default {
     elLabel,
     fundSummary
   },
+  props: {
+    overridePid: String
+  },
   data() {
     return {
       currentCategory: [],
@@ -276,6 +274,15 @@ export default {
       tableKey: 0
     }
   },
+  computed: {
+    computedHeight() {
+      const privateHeight = window.document.documentElement.clientHeight || window.document.body.clientHeight
+      return privateHeight - 190
+    },
+    currentPid() {
+      return this.overridePid || this.$store.getters.comId
+    }
+  },
   created() {
     this.initList()
   },
@@ -283,7 +290,7 @@ export default {
     async initList() {
       this.list = []
       this.listLoading = true
-      const { data: result } = await this.$axios.get('/secure/infomation/' + this.$store.getters.comId + '/fundValueList?userid=' + this.$store.getters.userid)
+      const { data: result } = await this.$axios.get('/secure/infomation/' + this.currentPid + '/fundValueList?userid=' + this.$store.getters.userid)
       this.list = result
       let i = 1
       this.list.forEach(e => {

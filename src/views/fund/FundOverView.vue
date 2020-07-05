@@ -29,7 +29,7 @@
       border
       fit
       highlight-current-row
-      max-height="800"
+      :max-height="computedHeight"
       style="width: 100%;height:100%"
     >
       <el-table-column
@@ -70,7 +70,8 @@
         :filter-method="strategyFilterHandler"
       >
         <template slot-scope="{row}">
-          <div :key="Math.random()">
+          <div v-if="!row.strategy.length">--</div>
+          <div :key="Math.random()" v-else>
             <el-tag v-for="item in row.strategy" :key="item + Math.random()">{{ item | strategyFilter }}</el-tag>
           </div>
         </template>
@@ -108,6 +109,11 @@
       <el-table-column label="夏普比率" align="center" sortable prop="sharpRate">
         <template slot-scope="{row}">
           <span>{{ row.sharpRate | valueValidator }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="成立日期" align="center" sortable prop="foundDate">
+        <template slot-scope="{row}">
+          <span>{{ row.foundDate | valueValidator | dateFilter }}</span>
         </template>
       </el-table-column>
       <el-table-column label="净值更新日期" align="center" sortable prop="lastDate">
@@ -193,6 +199,16 @@ export default {
     },
     strategyFilter(param) {
       return store.getters.strategyMap[param]
+    },
+    dateFilter(param) {
+      if (param === '--') {
+        return param
+      }
+      const date = new Date(parseFloat(param))
+      const mm = date.getMonth() + 1
+      const m = mm < 10 ? '0' + mm : mm
+      const d = date.getDate() < 10 ? '0' + date.getDate() : date.getDate()
+      return date.getFullYear() + '-' + m + '-' + d
     }
   },
   components: {
@@ -221,6 +237,12 @@ export default {
       importanceOptions: [1, 2, 3],
       sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
       tableKey: 0
+    }
+  },
+  computed: {
+    computedHeight() {
+      const privateHeight = window.document.documentElement.clientHeight || window.document.body.clientHeight
+      return privateHeight - 190
     }
   },
   created() {
@@ -257,11 +279,15 @@ export default {
     },
     strategyFilterHandler(value, row, column) {
       // return row.strategy.indexOf(value) >= 0
-      row.strategy.some(e => {
-        switch (value) {
-          case 'notnull':
-        }
-      })
+      switch (value) {
+        case 'notnull':
+          return row.strategy.length > 0
+        case 'null':
+          return row.strategy.length === 0
+      }
+      // row.strategy.some(e => {
+      //
+      // })
       return row.strategy.indexOf(value) >= 0
     },
     sortWeekly(a, b) {

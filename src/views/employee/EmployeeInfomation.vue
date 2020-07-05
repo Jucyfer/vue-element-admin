@@ -84,6 +84,9 @@ export default {
       return store.getters.employeepositionTranslation[param]
     }
   },
+  props: {
+    overridePid: String
+  },
   data() {
     return {
       list: [],
@@ -102,6 +105,11 @@ export default {
       tableKey: 0
     }
   },
+  computed: {
+    currentPid() {
+      return this.overridePid || this.$store.getters.comId
+    }
+  },
   created() {
     this.initList()
     this.initStore()
@@ -113,7 +121,7 @@ export default {
     async initList() {
       this.list = []
       this.listLoading = true
-      const { data: result } = await this.$axios.get('/secure/infomation/' + this.$store.getters.comId + '/staffs?userid=' + this.$store.getters.userid)
+      const { data: result } = await this.$axios.get('/secure/infomation/' + this.currentPid + '/staffs?userid=' + this.$store.getters.userid)
       this.list = result
       let i = 1
       this.list.forEach(e => {

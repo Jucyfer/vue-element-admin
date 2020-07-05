@@ -27,23 +27,23 @@
           <!--          </div>-->
           <el-row gutter="20">
             <el-col span="8">
-              姓名
+              <el-label color="major-text" shadow="1">姓名</el-label>
             </el-col>
             <el-col span="16">
-              {{ user.name }}
+              <el-label>{{ user.name }}</el-label>
             </el-col>
           </el-row>
           <el-row gutter="20">
             <el-col span="8">
-              公司名称
+              <el-label color="major-text" shadow="1">公司名称</el-label>
             </el-col>
             <el-col span="16">
-              {{ user.com }}
+              <el-label>{{ user.com }}</el-label>
             </el-col>
           </el-row>
           <el-row gutter="20">
             <el-col span="8">
-              职务
+              <el-label color="major-text" shadow="1">职务</el-label>
             </el-col>
             <el-col span="16">
               <el-tag v-for="item in user.position" :key="item + Math.random()">{{ item | positionFilter }}</el-tag>
@@ -51,18 +51,18 @@
           </el-row>
           <el-row gutter="20">
             <el-col span="8">
-              手机号
+              <el-label color="major-text" shadow="1">手机号</el-label>
             </el-col>
             <el-col span="16">
-              {{ user.mobile }}
+              <el-label>{{ user.mobile }}</el-label>
             </el-col>
           </el-row>
           <el-row gutter="20">
             <el-col span="8">
-              邮箱
+              <el-label color="major-text" shadow="1">邮箱</el-label>
             </el-col>
             <el-col span="16">
-              {{ user.mail }}
+              <el-label>{{ user.mail }}</el-label>
             </el-col>
           </el-row>
           <el-row gutter="20">
@@ -102,9 +102,10 @@
 
 <script>
 // import PanThumb from '@/components/PanThumb'
+import elLabel from '@/components/elementx/simple/label/el-label'
 import store from '@/store/index'
 export default {
-  // components: { PanThumb },
+  components: { elLabel },
   filters: {
     positionFilter(param) {
       return store.getters.employeepositionTranslation[param]
@@ -131,6 +132,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+  .el-row {
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
 .box-center {
   margin: 0 auto;
   display: table;

@@ -19,7 +19,7 @@
       border
       fit
       highlight-current-row
-      :default-sort = "{prop: 'lastupdatetime', order: 'descending'}"
+      :default-sort="{prop: 'lastupdatetime', order: 'descending'}"
       style="width: 100%;"
     >
       <el-table-column
@@ -28,7 +28,7 @@
         label="序号"
         align="center"
       ></el-table-column>
-      <el-table-column label="管理人" min-width="150px">
+      <el-table-column label="管理人" align="center" min-width="150px">
         <template slot-scope="{row}">
           <span class="link-type" @click="handleApproval(row,false)">{{ row.pname }}</span>
         </template>
@@ -123,6 +123,7 @@
 import waves from '@/directive/waves' // waves directive
 import MarkdownEditor from '@/components/MarkdownEditor'
 import DynamicTable from '@/views/table/DynamicTable'
+import SingleFile from '@/components/Upload/SingleFile'
 import store from '@/store/index'
 export default {
   name: 'UsrAllReports',
@@ -142,6 +143,9 @@ export default {
           break
         case 'cascade':
           realIs = 'el-cascader-panel'
+          break
+        case 'singleFile':
+          realIs = 'single-file'
           break
         case 'input':
         default:

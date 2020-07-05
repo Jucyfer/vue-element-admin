@@ -128,7 +128,9 @@ const state = {
     { text: '宏观对冲类', value: 'macroHedges' },
     { text: '其他', value: 'others' },
     { text: '组合基金-FOF', value: 'fof' },
-    { text: '组合基金-MOM', value: 'mom' }
+    { text: '组合基金-MOM', value: 'mom' },
+    { text: '（任意策略）', value: 'notnull' },
+    { text: '（无策略）', value: 'null' }
   ],
   sourceType: {
     'userUpload': '用户上传',

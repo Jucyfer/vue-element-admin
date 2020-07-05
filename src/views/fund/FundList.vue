@@ -29,7 +29,7 @@
       border
       fit
       highlight-current-row
-      max-height="800"
+      :max-height="computedHeight"
       style="width: 100%;height:100%"
     >
       <el-table-column
@@ -163,6 +163,9 @@ export default {
       return param == null || param == 0 ? '--' : param
     }
   },
+  props: {
+    overridePid: String
+  },
   data() {
     return {
       list: [],
@@ -182,6 +185,15 @@ export default {
       tableKey: 0
     }
   },
+  computed: {
+    computedHeight() {
+      const privateHeight = window.document.documentElement.clientHeight || window.document.body.clientHeight
+      return privateHeight - 190
+    },
+    currentPid() {
+      return this.overridePid || this.$store.getters.comId
+    }
+  },
   created() {
     this.initList()
     this.initStore()
@@ -193,7 +205,7 @@ export default {
     async initList() {
       this.list = []
       this.listLoading = true
-      const { data: result } = await this.$axios.get('/secure/infomation/' + this.$store.getters.comId + '/fundList?userid=' + this.$store.getters.userid)
+      const { data: result } = await this.$axios.get('/secure/infomation/' + this.currentPid + '/fundList?userid=' + this.$store.getters.userid)
       this.list = result
       let i = 1
       this.list.forEach(e => {

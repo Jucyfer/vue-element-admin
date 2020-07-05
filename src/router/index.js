@@ -106,7 +106,14 @@ export const constantRoutes = [
         path: '',
         component: () => import('@/views/organization/OrganizationOverview.vue'),
         name: 'orgList',
-        meta: { title: '管理人总览（G）', icon: 'excel', noCache: true }
+        meta: { title: '管理人总览（G）', icon: 'excel', noCache: true, activeMenu: '/orgList' }
+      },
+      {
+        path: 'detail/:pid',
+        component: () => import('@/views/organization/OrganizationDetail.vue'),
+        name: 'detail',
+        meta: { title: '管理人详情', icon: 'excel', noCache: true, activeMenu: '/orgList' },
+        hidden: true
       }
     ]
   },
@@ -542,6 +549,22 @@ export const asyncRoutes = [
         component: () => import('@/views/fund/FundCombine.vue'),
         name: 'combinefund',
         meta: { title: '组合基金（G）', icon: 'favorite', noCache: true }
+      }
+    ]
+  },
+  {
+    path: '/fundconstruct',
+    component: Layout,
+    redirect: 'fundconstruct',
+    // component: () => import('@/views/competition/Competition.vue'),
+    // name: 'Competition',
+    // meta: { title: '实盘大赛', icon: 'money', noCache: true },
+    children: [
+      {
+        path: '',
+        component: () => import('@/views/fund/FundConstruction.vue'),
+        name: 'fundconstruct',
+        meta: { title: '基金配置（临）', icon: 'favorite', noCache: true }
       }
     ]
   },
