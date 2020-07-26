@@ -1,12 +1,16 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <el-input
-        v-model="search.fuzzyInput"
-        placeholder="基金名称关键字/备案编码"
-        style="width: 200px;"
-        class="filter-item"
-      />
+      <el-input v-model="listQuery.title" placeholder="Title" style="width: 200px;" class="filter-item" @keyup.enter.native="console.log(1234)" />
+      <el-select v-model="listQuery.importance" placeholder="Imp" clearable style="width: 90px" class="filter-item">
+        <el-option v-for="item in importanceOptions" :key="item" :label="item" :value="item" />
+      </el-select>
+      <el-select v-model="listQuery.sort" style="width: 140px" class="filter-item" @change="console.log(1234)">
+        <el-option v-for="item in sortOptions" :key="item.key" :label="item.label" :value="item.key" />
+      </el-select>
+      <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="console.log(1234)">
+        查找
+      </el-button>
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-refresh" @click="initList">
         刷新列表
       </el-button>
@@ -15,7 +19,7 @@
     <el-table
       :key="tableKey"
       v-loading="listLoading"
-      :data="list.filter(data => !search.fuzzyInput || data.fundName.toLowerCase().includes(search.fuzzyInput.toLowerCase()) || data.fundNo.toLowerCase() == search.fuzzyInput.toLowerCase()) "
+      :data="list"
       border
       fit
       highlight-current-row
@@ -28,37 +32,9 @@
         label="序号"
         align="center"
       ></el-table-column>
-      <el-table-column label="基金产品" align="center">
+      <el-table-column label="基金名称" min-width="144px" align="center">
         <template slot-scope="{row}">
-          <el-link @click.prevent="handleExamine(row)" :underline="false"><span>{{ row.fundName }}</span></el-link>
-        </template>
-      </el-table-column>
-      <el-table-column label="备案编码" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.fundNo }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="管理人名称" align="center" sortable prop="orgName">
-        <template slot-scope="{row}">
-          <span>{{ row.orgName }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="运行情况" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.workingState | valueValidator }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column
-        label="基金策略"
-        align="center"
-        :filters="$store.getters.strategyTableFilter"
-        :filter-method="strategyFilterHandler"
-      >
-        <template slot-scope="{row}">
-          <div v-if="!row.strategy || !row.strategy.length">--</div>
-          <div :key="Math.random()" v-else>
-            <el-tag v-for="item in row.strategy" :key="item + Math.random()">{{ item | strategyFilter }}</el-tag>
-          </div>
+          <span>{{ row.fundName }}</span>
         </template>
       </el-table-column>
       <el-table-column label="最新净值" align="center" sortable prop="lastValue">
@@ -96,11 +72,6 @@
           <span>{{ row.sharpRate | valueValidator }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="成立日期" align="center" sortable prop="foundDate">
-        <template slot-scope="{row}">
-          <span>{{ row.foundDate | valueValidator }}</span>
-        </template>
-      </el-table-column>
       <el-table-column label="净值更新日期" align="center" sortable prop="lastDate">
         <template slot-scope="{row}">
           <span>{{ row.lastDate | valueValidator }}</span>
@@ -111,15 +82,91 @@
           <span>{{ row.maintainDays | valueValidator }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+      <el-table-column
+        label="最后更新渠道"
+        align="center"
+        sortable
+        prop="lastFrom"
+        :filters="$store.getters.fundValSourceFilter"
+        :filter-method="sourceFilterHandler"
+      >
+        <template slot-scope="{row}">
+          <span>{{ row.lastFrom | valueValidator | sourceFilter }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="操作" min-width="140px" align="center" class-name="small-padding fixed-width">
         <template slot-scope="{row,$index}">
-          <!--          弹框净值走势-->
+          <el-button size="mini" type="success" @click="handleUploadDialogShow(row)">
+            编辑
+          </el-button>
           <el-button size="mini" type="success" @click="handleExamine(row)">
             查看
           </el-button>
         </template>
       </el-table-column>
     </el-table>
+    <el-dialog :key="Math.random()" title="净值批量上传" :visible.sync="uploadDialogVisible" width="80%" @close="uploaded=false">
+      <el-row gutter="20">
+        <el-col span="6">
+          <div style="line-height: 1.5; font-size: 16px">请选择净值上传方式</div>
+        </el-col>
+      </el-row>
+      <el-row gutter="20">
+        <el-col span="24">
+          <el-tabs type="border-card">
+            <el-tab-pane label="手工上传">
+              <div class="content-container">
+                <el-row gutter="20">
+                  <el-label>绑定托管邮箱前，可以以下载模板手工上传方式批量上传净值</el-label>
+                </el-row>
+                <el-row gutter="20">
+                  <el-link href="/common/upload/templates/净值上传模板（单基金）.xlsx"><el-label color="brand" size="minor-text">净值手工上传模板请点这里</el-label></el-link>
+                </el-row>
+                <el-row v-loading="uploading" gutter="20">
+                  <!--                  /infomation/{pid}/fund/{fundId}/value-->
+                  <el-upload
+                    :show-file-list="false"
+                    :action="'/secure/infomation/'+$store.getters.comId+'/fund/'+currentFundId+'/value?userid='+$store.getters.userid"
+                    accept=".xls,.XLS,.xlsx,.XLSX"
+                    :on-success="handleUploadFileSuccess"
+                    :on-error="handleUploadFailed"
+                    :before-upload="beforeUpload"
+                    :headers="{token:$store.getters.token}"
+                  >
+                    <el-button type="primary">上传净值文件</el-button>
+                    <div slot="tip" class="el-upload__tip">只能上传xls/xlsx文件</div>
+                  </el-upload>
+                </el-row>
+                <el-row v-show="uploaded && isError" gutter="20">
+                  <el-label color="danger">上传失败！！请重试或联系管理员！</el-label>
+                </el-row>
+                <el-row v-show="uploaded && !isError" gutter="20">
+                  <el-label color="success">上传成功！</el-label>
+                </el-row>
+              </div>
+            </el-tab-pane>
+            <el-tab-pane label="托管邮箱">
+              <div class="content-container">
+                <el-row gutter="20">
+                  <el-col span="24">
+                    <el-label color="danger">为方便后期业绩跟踪，请将下面邮箱地址复制黏贴到产品所在托管，绑定成功前的净值请以模板自行上传或者联系管理员</el-label>
+                    <el-label color="danger" size="title">非托管方邮箱发送的数据将不会被处理，请注意！</el-label>
+                  </el-col>
+                </el-row>
+                <el-row>
+                  <el-col span="24">
+                    <el-input value="dataori@110972.tech" readonly style="width:400px;max-width:100%;" />
+                    <el-button v-clipboard:copy="'dataori@110972.tech'" v-clipboard:success="handleClipSuccess" type="primary" icon="el-icon-document">
+                      复制邮箱地址
+                    </el-button>
+                  </el-col>
+                </el-row>
+              </div>
+            </el-tab-pane>
+          </el-tabs>
+        </el-col>
+      </el-row>
+    </el-dialog>
     <el-dialog
       :key="Math.random()"
       :close-on-click-modal="false"
@@ -175,30 +222,28 @@
 import store from '@/store/index'
 import simplechart from '@/components/Charts/SingleDataLineChart'
 import fundSummary from '@/components/Panel/FundSummary'
-
+import elLabel from '@/components/elementx/simple/label/el-label'
+import clipboard from '@/directive/clipboard/index.js' // use clipboard by v-directive
 export default {
-  name: 'FundOverView',
+  name: 'CustmizedProductInfoList',
+  directives: {
+    clipboard
+  },
   filters: {
     valueValidator(param) {
       return param == null || param == 0 ? '--' : param
     },
-    strategyFilter(param) {
-      return store.getters.strategyMap[param]
-    },
-    dateFilter(param) {
-      if (param === '--') {
-        return param
-      }
-      const date = new Date(parseFloat(param))
-      const mm = date.getMonth() + 1
-      const m = mm < 10 ? '0' + mm : mm
-      const d = date.getDate() < 10 ? '0' + date.getDate() : date.getDate()
-      return date.getFullYear() + '-' + m + '-' + d
+    sourceFilter(param) {
+      return store.getters.fundValSourceMap[param]
     }
   },
   components: {
     simplechart,
+    elLabel,
     fundSummary
+  },
+  props: {
+    overridePid: String
   },
   data() {
     return {
@@ -207,10 +252,16 @@ export default {
       currentRow: {},
       currentName: '',
       currentDisplay: [],
+      currentFundId: '',
       list: [],
       listLoading: false,
+      uploaded: false,
+      uploading: false,
+      isError: false,
       retDialogVisible: false,
-      retContainer: {},
+      uploadDialogVisible: false,
+      retContainer: {
+      },
       listQuery: {
         page: 1,
         limit: 20,
@@ -221,9 +272,6 @@ export default {
       },
       importanceOptions: [1, 2, 3],
       sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
-      search:{
-          fuzzyInput:''
-      },
       tableKey: 0
     }
   },
@@ -231,6 +279,9 @@ export default {
     computedHeight() {
       const privateHeight = window.document.documentElement.clientHeight || window.document.body.clientHeight
       return privateHeight - 190
+    },
+    currentPid() {
+      return this.overridePid || this.$store.getters.comId
     }
   },
   created() {
@@ -240,12 +291,8 @@ export default {
     async initList() {
       this.list = []
       this.listLoading = true
-      const { data: result } = await this.$axios.get('/secure/infomation/fundOverview?userid=' + this.$store.getters.userid)
+      const { data: result } = await this.$axios.get('/secure/custom/product/' + this.$store.getters.userid + '/list/value')
       this.list = result
-      let i = 1
-      this.list.forEach(e => {
-        e.id = i++
-      })
       this.listLoading = false
     },
     handleExamine(row) {
@@ -265,19 +312,6 @@ export default {
       this.currentName = ''
       this.$forceUpdate()
     },
-    strategyFilterHandler(value, row, column) {
-      // return row.strategy.indexOf(value) >= 0
-      switch (value) {
-        case 'notnull':
-          return row.strategy && row.strategy.length > 0
-        case 'null':
-          return row.strategy == null || row.strategy.length === 0
-      }
-      // row.strategy.some(e => {
-      //
-      // })
-      return row.strategy && row.strategy.indexOf(value) >= 0
-    },
     sortWeekly(a, b) {
       return parseFloat(a.profitPresentWeek) - parseFloat(b.profitPresentWeek)
     },
@@ -289,18 +323,55 @@ export default {
     },
     sortMaxDrawdown(a, b) {
       return parseFloat(a.maxDrawDown) - parseFloat(b.maxDrawDown)
+    },
+    sourceFilterHandler(value, row, column) {
+      return row.lastFrom && row.lastFrom.indexOf(value) >= 0
+    },
+    handleClipSuccess() {
+      this.$message({
+        message: '已复制到剪贴板',
+        type: 'success',
+        duration: 1500
+      })
+    },
+    handleUploadDialogShow(row) {
+      this.uploadDialogVisible = true
+      this.currentFundId = row.fundNo
+    },
+    handleUploadFileSuccess() {
+      this.afterUpload()
+      this.isError = false
+      this.initList()
+      this.$message({
+        message: '上传成功！',
+        type: 'success',
+        duration: 1500
+      })
+    },
+    handleUploadFailed() {
+      this.afterUpload()
+      this.isError = true
+      this.$message.error('上传失败！')
+    },
+    beforeUpload() {
+      this.uploading = true
+    },
+    afterUpload() {
+      this.uploaded = true
+      this.uploading = false
     }
   }
 
 }
 </script>
 
-<style scoped>
-  /deep/.statisticDialog {
-    align-items: center;
-    align-content: center;
-    child-align: middle;
-    margin-top: 5vh;
+<style lang="scss" scoped>
+  .el-row {
+    margin-bottom: 14px;
+    line-height: 1.5;
+    &:last-child {
+      margin-bottom: 0;
+    }
   }
   .container-row{
     line-height: 1.5;

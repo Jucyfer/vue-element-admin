@@ -41,7 +41,7 @@
 <!--            Purchases-->
             尽调报告数量
           </div>
-          <count-to :start-val="0" :end-val="9280" :duration="3200" class="card-panel-num" />
+          <count-to :start-val="0" :end-val="30" :duration="3200" class="card-panel-num" />
         </div>
       </div>
     </el-col>
@@ -56,7 +56,7 @@
 <!--            Shoppings-->
             风险事件数
           </div>
-          <count-to :start-val="0" :end-val="13600" :duration="3600" class="card-panel-num" />
+          <count-to :start-val="0" :end-val="0" :duration="3600" class="card-panel-num" />
         </div>
       </div>
     </el-col>

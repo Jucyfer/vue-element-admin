@@ -3,30 +3,35 @@
     <el-button type="primary" @click="handleAddUser">新增用户</el-button>
 
     <el-table :data="usersList" style="width: 100%;margin-top:30px;" border>
-      <el-table-column align="center" label="用户id" width="220">
-        <template slot-scope="scope">
-          {{ scope.row.key }}
+      <el-table-column align="center" label="用户账号" width="220">
+        <template slot-scope="{row}">
+          {{ row.username }}
         </template>
       </el-table-column>
-      <el-table-column align="center" label="用户名称" width="220">
-        <template slot-scope="scope">
-          {{ scope.row.name }}
+      <el-table-column align="center" label="姓名" width="220">
+        <template slot-scope="{row}">
+          {{ row.name }}
         </template>
       </el-table-column>
-      <el-table-column align="center" label="所属角色" width="220">
-        <template slot-scope="scope">
-          {{ scope.row.roles }}
+      <el-table-column align="center" label="公司名称" width="220">
+        <template slot-scope="{row}">
+          {{ row.pname }}
         </template>
       </el-table-column>
-      <el-table-column align="header-center" label="用户描述">
-        <template slot-scope="scope">
-          {{ scope.row.description }}
+      <el-table-column align="center" label="手机号">
+        <template slot-scope="{row}">
+          {{ row.mobile }}
+        </template>
+      </el-table-column>
+      <el-table-column align="center" label="邮箱">
+        <template slot-scope="{row}">
+          {{ row.mailaddr }}
         </template>
       </el-table-column>
       <el-table-column align="center" label="操作">
-        <template slot-scope="scope">
-          <el-button type="primary" size="small" @click="handleEdit(scope)">编辑</el-button>
-          <el-button type="danger" size="small" @click="handleDelete(scope)">删除</el-button>
+        <template slot-scope="{row}">
+          <el-button type="primary" size="small" @click="handleEdit(row)">编辑</el-button>
+          <el-button type="danger" size="small" @click="handleResetPwd(row)">重置密码</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -69,7 +74,7 @@
 <script>
 // import path from 'path'
 import { deepClone } from '@/utils'
-import { getUsers, addUser, deleteUser, updateUser } from '@/api/user'
+import { getUsers, setUserPwd, addUser, deleteUser, updateUser } from '@/api/user'
 
 const defaultUser = {
   key: '',
@@ -110,8 +115,8 @@ export default {
   },
   methods: {
     async getUsers() {
-      const res = await getUsers()
-      this.usersList = res.data
+      const list = await getUsers()
+      this.usersList = list
     },
     handleAddUser(scope) {
       this.user = Object.assign({}, defaultUser)
@@ -176,6 +181,14 @@ export default {
           `,
         type: 'success'
       })
+    },
+    async handleResetPwd(row) {
+      const resp = await setUserPwd(row.userid, {})
+      if (!resp) {
+        this.$message.error('操作失败！')
+      } else {
+        this.$message.success('操作成功!')
+      }
     }
   }
 }

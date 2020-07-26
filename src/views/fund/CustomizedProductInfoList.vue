@@ -20,6 +20,9 @@
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-refresh" @click="initList">
         刷新列表
       </el-button>
+      <el-button v-waves class="filter-item" type="primary" icon="el-icon-circle-plus-outline" @click="handleShowCreateDialog">
+        新增
+      </el-button>
     </div>
     <!--highlight-current-row-->
     <el-table
@@ -50,7 +53,7 @@
       </el-table-column>
       <el-table-column label="成立日期" width="88px" align="center">
         <template slot-scope="{row}">
-          <span>{{ new Date(parseFloat(row.establishDate)).toLocaleDateString() }}</span>
+          <span>{{ row.establishDate }}</span>
         </template>
       </el-table-column>
       <el-table-column label="托管人名称" width="117px" align="center">
@@ -138,7 +141,88 @@
         </template>
       </el-table-column>
     </el-table>
-
+    <el-dialog
+      :close-on-click-modal="false"
+      title="添加自定义基金产品"
+      :visible.sync="createDialogVisible"
+      width="80%"
+      top="5vh"
+      class="statisticDialog"
+      @close="handleClearCreate"
+    >
+      <el-form
+        ref="createForm"
+        :model="createForm"
+      >
+        <el-form-item label="自定义基金名称">
+          <el-input v-model="createForm.fundName" placeholder="自定义基金名称" />
+        </el-form-item>
+        <el-form-item label="基金编号">
+          <el-input v-model="createForm.fundNo" placeholder="基金编号" />
+        </el-form-item>
+        <el-form-item label="托管人名称">
+          <el-input v-model="createForm.mandatorName" placeholder="托管人名称" />
+        </el-form-item>
+        <el-form-item label="运行情况">
+          <!--          <el-input v-model="createForm.workingState" placeholder="请输入运行情况" />-->
+          <el-radio-group v-model="createForm.workingState">
+            <el-radio-button label="正在运作"></el-radio-button>
+            <el-radio-button label="延期清算"></el-radio-button>
+            <el-radio-button label="提前清算"></el-radio-button>
+            <el-radio-button label="正常清算"></el-radio-button>
+            <el-radio-button label="非正常清算"></el-radio-button>
+            <el-radio-button label="已终止"></el-radio-button>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="基金成立时间">
+          <!--          <el-input v-model="createForm.establishDate" placeholder="请输入基金成立时间" />-->
+          <el-date-picker
+            v-model="createForm.establishDate"
+            type="date"
+            placeholder="成立时间"
+            format="yyyy 年 MM 月 dd 日"
+            value-format="yyyy-MM-dd"
+          >
+          </el-date-picker>
+        </el-form-item>
+        <el-form-item label="基金类型">
+          <!--          <el-input v-model="createForm.fundType" placeholder="请输入基金类型" />-->
+          <el-radio-group v-model="createForm.fundType">
+            <el-radio-button label="权益类"></el-radio-button>
+            <el-radio-button label="固定收益类"></el-radio-button>
+            <el-radio-button label="商品及金融衍生"></el-radio-button>
+            <el-radio-button label="混合类"></el-radio-button>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="基金策略">
+          <!--          <el-input v-model="createForm.strategy" placeholder="请输入基金策略" />-->
+          <el-cascader
+            v-model="createForm.strategy"
+            :options="cascadeOptions"
+            :props="{multiple:true,emitPath:false}"
+            clearable
+          />
+        </el-form-item>
+        <el-form-item label="预警线（0-100%）">
+          <el-input-number v-model.number="createForm.warnLevel" placeholder="请输入预警线" :controls="false" min="0" max="100" />
+        </el-form-item>
+        <el-form-item label="强平线（0-100%）">
+          <el-input-number v-model.number="createForm.closeOut" placeholder="请输入强平线" :controls="false" min="0" max="100" />
+        </el-form-item>
+        <el-form-item label="是否为代表产品">
+          <!--          <el-input v-model="createForm.isRepresent" placeholder="请输入自定义基金名称" />-->
+          <el-checkbox v-model="createForm.isRepresent" border>{{ createForm.isRepresent?'是':'否' }}</el-checkbox>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="handleClearCreate">
+          取消
+        </el-button>
+        <el-button type="primary" @click="handleCreateCustomFund">
+          确定
+        </el-button>
+      </div>
+    </el-dialog>
     <!--    <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />-->
   </div>
 </template>
@@ -146,7 +230,7 @@
 <script>
 import store from '@/store/index'
 export default {
-  name: 'FundList',
+  name: 'CustomizedProductInfoList',
   filters: {
     dateFilter(param) {
       const date = new Date(parseFloat(param))
@@ -182,7 +266,20 @@ export default {
       },
       importanceOptions: [1, 2, 3],
       sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
-      tableKey: 0
+      tableKey: 0,
+      createDialogVisible: false,
+      createForm: {
+        fundName: '',
+        fundNo: '',
+        mandatorName: '',
+        workingState: '',
+        establishDate: '',
+        fundType: '',
+        strategy: [],
+        warnLevel: 0,
+        closeOut: 0,
+        isRepresent: false
+      }
     }
   },
   computed: {
@@ -205,7 +302,7 @@ export default {
     async initList() {
       this.list = []
       this.listLoading = true
-      const { data: result } = await this.$axios.get('/secure/infomation/' + this.currentPid + '/fundList?userid=' + this.$store.getters.userid)
+      const { data: result } = await this.$axios.get('/secure/custom/product/' + this.$store.getters.userid + '/list/info')
       this.list = result
       let i = 1
       this.list.forEach(e => {
@@ -225,7 +322,7 @@ export default {
           row.warnLevel = 0.0
         }
         const { data: result } = await this.$axios.post(
-          '/secure/infomation/' + this.$store.getters.comId + '/fund/' + row.fundId + '/info?userid=' + this.$store.getters.userid,
+          '/secure/custom/product/' + this.$store.getters.userid + '/' + row.fundNo + '/alter',
           { strategy: row.strategy, warnLevel: parseFloat(row.warnLevel), closeOut: parseFloat(row.closeOut), isRepresent: row.isRepresent }
         )
         if (!result) {
@@ -236,6 +333,44 @@ export default {
         }
       }
       this.$forceUpdate()
+    },
+    // 显示对话框
+    handleShowCreateDialog() {
+      this.createDialogVisible = true
+    },
+    // 对话框点击取消
+    handleClearCreate() {
+      this.createForm = {
+        fundName: '',
+        fundNo: '',
+        mandatorName: '',
+        workingState: '',
+        establishDate: '',
+        fundType: '',
+        strategy: [],
+        warnLevel: 0,
+        closeOut: 0,
+        isRepresent: false
+      }
+      this.createDialogVisible = false
+    },
+    // 对话框点击确定
+    async handleCreateCustomFund() {
+      console.log(this.createForm)
+      const { data: result } = await this.$axios.post('/secure/custom/product/' + this.$store.getters.userid + '/' + this.createForm.fundNo + '/append', this.createForm)
+      if (result === 'success') {
+        this.$message({
+          message: '提交成功',
+          type: 'success'
+        })
+        this.handleClearCreate()
+        this.initList()
+      } else {
+        this.$message({
+          message: '提交失败',
+          type: 'error'
+        })
+      }
     }
   }
 
@@ -245,5 +380,10 @@ export default {
 <style scoped>
   .el-input-number {
     width: 100%
+  }
+  .statisticDialog {
+    align-items: center;
+    align-content: center;
+    child-align: middle;
   }
 </style>

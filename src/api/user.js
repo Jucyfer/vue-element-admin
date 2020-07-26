@@ -54,8 +54,18 @@ export function logout() {
 
 export function getUsers() {
   return request({
-    url: '/vue-element-admin/users',
+    // url: '/vue-element-admin/users',
+    url: '/secure/user/list',
     method: 'get'
+  })
+}
+
+export function setUserPwd(userid, body) {
+  return request({
+    // url: '/vue-element-admin/users',
+    url: '/secure/user/' + userid + '/pwd',
+    method: 'post',
+    data: body
   })
 }
 

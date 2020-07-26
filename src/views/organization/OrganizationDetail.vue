@@ -149,8 +149,8 @@
 <script>
 import elLabel from '@/components/elementx/simple/label/el-label'
 import staffList from '@/views/employee/EmployeeInfomation'
-import fundList from '@/views/fund/FundList.vue'
-import fundValueInfoList from '@/views/fund/FundValueInfoList.vue'
+import fundList from '@/views/fund/FundInfoList.vue'
+import fundValueInfoList from '@/views/fund/FundValueList.vue'
 import MarkdownEditor from '@/components/MarkdownEditor'
 import DynamicTable from '@/views/table/DynamicTable'
 import SingleFile from '@/components/Upload/SingleFile'
@@ -304,7 +304,7 @@ export default {
     },
     // 路由设置相关
     setTagsViewTitle() {
-      const title = '机构'
+      const title = '机构详情'
       const route = Object.assign({}, this.tempRoute, { title: `${title}-${this.pathPid}` })
       this.$store.dispatch('tagsView/updateVisitedView', route)
     }

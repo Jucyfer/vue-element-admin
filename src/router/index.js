@@ -120,47 +120,95 @@ export const constantRoutes = [
   {
     path: '/reports',
     component: Layout,
-    meta: { title: '尽调报告', icon: 'skill', noCache: true },
+    redirect: 'reports',
     children: [
       {
-        path: 'allreports',
+        path: '',
         // component: () => import('@/views/usr_tables/usr_all-reports_admin'),
         component: () => import('@/views/usr_tables/usr_all_reports'),
-        name: 'AllReports',
-        meta: {
-          title: '尽调报告管理（审核）',
-          // icon: 'skill',
-          noCache: true
-        }
-      },
-      {
-        path: 'usr_reports',
-        component: () => import('@/views/usr_tables/usr_reports'),
-        name: 'UserReports',
-        meta: {
-          title: '尽调报告管理（管理人）',
-          // icon: 'skill',
-          noCache: true
-        }
+        name: 'reports',
+        meta: { title: '尽调报告审核（G）', icon: 'skill', noCache: true }
+        // meta: {
+        //   title: '尽调报告管理（审核）',
+        //   // icon: 'skill',
+        //   noCache: true
+        // }
       }
     ]
   },
+  // -------------------------------------------------------------------------------------------------------------------
   {
-    path: '/employee',
+    path: '/fundoverview',
     component: Layout,
-    redirect: 'employeelist',
+    redirect: 'fundoverview',
     // component: () => import('@/views/competition/Competition.vue'),
     // name: 'Competition',
     // meta: { title: '实盘大赛', icon: 'money', noCache: true },
     children: [
       {
         path: '',
-        component: () => import('@/views/employee/EmployeeInfomation.vue'),
-        name: 'employeelist',
-        meta: { title: '人员信息（P）', icon: 'peoples', noCache: true }
+        component: () => import('@/views/fund/FundOverView.vue'),
+        name: 'fundoverview',
+        meta: { title: '基金总览（G）', icon: 'chart', noCache: true }
       }
     ]
   },
+  {
+    path: '/combinefund',
+    component: Layout,
+    redirect: 'combinefund',
+    // component: () => import('@/views/competition/Competition.vue'),
+    // name: 'Competition',
+    // meta: { title: '实盘大赛', icon: 'money', noCache: true },
+    children: [
+      {
+        path: '',
+        component: () => import('@/views/fund/FundCombine.vue'),
+        name: 'combinefund',
+        meta: { title: '组合基金（G）', icon: 'favorite', noCache: true }
+      }
+    ]
+  },
+  {
+    path: '/fundconstruct',
+    component: Layout,
+    redirect: 'fundconstructtest',
+    // component: () => import('@/views/competition/Competition.vue'),
+    // name: 'Competition',
+    // meta: { title: '实盘大赛', icon: 'money', noCache: true },
+    children: [
+      {
+        path: '',
+        component: () => import('@/views/fund/FundConstruction.vue'),
+        name: 'fundconstructtest',
+        meta: { title: '基金配置（临）', icon: 'favorite', noCache: true }
+      },
+      {
+        path: '/:combineName',
+        component: () => import('@/views/fund/FundConstruction.vue'),
+        name: 'fundconstruct',
+        meta: { title: '组合基金配置', icon: 'excel', noCache: true, activeMenu: '/combinefund' },
+        hidden: true
+      }
+    ]
+  },
+  {
+    path: '/afterinvest',
+    component: Layout,
+    redirect: 'afterinvest',
+    // component: () => import('@/views/competition/Competition.vue'),
+    // name: 'Competition',
+    // meta: { title: '实盘大赛', icon: 'money', noCache: true },
+    children: [
+      {
+        path: '',
+        component: () => import('@/views/competition/Competition.vue'),
+        name: 'afterInvest',
+        meta: { title: '投后管理（G）', icon: 'money', noCache: true }
+      }
+    ]
+  },
+
   // {
   //   path: '/documentation',
   //   component: Layout,
@@ -489,6 +537,35 @@ export const asyncRoutes = [
   //   ]
   // },
   {
+    path: '/report',
+    component: Layout,
+    redirect: 'usr_report',
+    children: [
+      {
+        path: '',
+        component: () => import('@/views/usr_tables/usr_reports'),
+        name: 'usr_report',
+        meta: { title: '尽调报告填报（P）', icon: 'skill', noCache: true }
+      }
+    ]
+  },
+  {
+    path: '/employee',
+    component: Layout,
+    redirect: 'employeelist',
+    // component: () => import('@/views/competition/Competition.vue'),
+    // name: 'Competition',
+    // meta: { title: '实盘大赛', icon: 'money', noCache: true },
+    children: [
+      {
+        path: '',
+        component: () => import('@/views/employee/EmployeeInfomation.vue'),
+        name: 'employeelist',
+        meta: { title: '人员信息（P）', icon: 'peoples', noCache: true }
+      }
+    ]
+  },
+  {
     path: '/fundlist',
     component: Layout,
     redirect: 'fundlist',
@@ -498,89 +575,57 @@ export const asyncRoutes = [
     children: [
       {
         path: '',
-        component: () => import('@/views/fund/FundList.vue'),
+        component: () => import('@/views/fund/FundInfoList.vue'),
         name: 'fundlist',
         meta: { title: '基金信息（P）', icon: 'documentation', noCache: true }
       }
     ]
   },
   {
-    path: '/fundvalueinfolist',
+    path: '/fundvaluelist',
     component: Layout,
-    redirect: 'fundvalueinfolist',
+    redirect: 'fundvaluelist',
     // component: () => import('@/views/competition/Competition.vue'),
     // name: 'Competition',
     // meta: { title: '实盘大赛', icon: 'money', noCache: true },
     children: [
       {
         path: '',
-        component: () => import('@/views/fund/FundValueInfoList.vue'),
-        name: 'fundvalueinfolist',
+        component: () => import('@/views/fund/FundValueList.vue'),
+        name: 'fundvaluelist',
         meta: { title: '净值信息（P）', icon: 'chart', noCache: true }
       }
     ]
   },
   {
-    path: '/fundoverview',
+    path: '/custprodinfolist',
     component: Layout,
-    redirect: 'fundoverview',
+    redirect: 'custprodinfolist',
     // component: () => import('@/views/competition/Competition.vue'),
     // name: 'Competition',
     // meta: { title: '实盘大赛', icon: 'money', noCache: true },
     children: [
       {
         path: '',
-        component: () => import('@/views/fund/FundOverView.vue'),
-        name: 'fundoverview',
-        meta: { title: '基金总览（G）', icon: 'chart', noCache: true }
+        component: () => import('@/views/fund/CustomizedProductInfoList.vue'),
+        name: 'custprodinfolist',
+        meta: { title: '基金信息（C）', icon: 'documentation', noCache: true }
       }
     ]
   },
   {
-    path: '/combinefund',
+    path: '/custprodvaluelist',
     component: Layout,
-    redirect: 'combinefund',
+    redirect: 'custprodvaluelist',
     // component: () => import('@/views/competition/Competition.vue'),
     // name: 'Competition',
     // meta: { title: '实盘大赛', icon: 'money', noCache: true },
     children: [
       {
         path: '',
-        component: () => import('@/views/fund/FundCombine.vue'),
-        name: 'combinefund',
-        meta: { title: '组合基金（G）', icon: 'favorite', noCache: true }
-      }
-    ]
-  },
-  {
-    path: '/fundconstruct',
-    component: Layout,
-    redirect: 'fundconstruct',
-    // component: () => import('@/views/competition/Competition.vue'),
-    // name: 'Competition',
-    // meta: { title: '实盘大赛', icon: 'money', noCache: true },
-    children: [
-      {
-        path: '',
-        component: () => import('@/views/fund/FundConstruction.vue'),
-        name: 'fundconstruct',
-        meta: { title: '基金配置（临）', icon: 'favorite', noCache: true }
-      }
-    ]
-  },
-  {
-    path: '/afterinvest',
-    component: Layout,
-    redirect: 'afterinvest',
-    // component: () => import('@/views/competition/Competition.vue'),
-    // name: 'Competition',
-    // meta: { title: '实盘大赛', icon: 'money', noCache: true },
-    children: [
-      {
-        path: '',
-        component: () => import('@/views/competition/Competition.vue'),
-        name: 'afterInvest',
-        meta: { title: '投后管理', icon: 'money', noCache: true }
+        component: () => import('@/views/fund/CustomizedProductValueList.vue'),
+        name: 'custprodvaluelist',
+        meta: { title: '净值信息（C）', icon: 'chart', noCache: true }
       }
     ]
   },

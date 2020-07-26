@@ -9,20 +9,13 @@ export default {
   name: 'MultipleDataLineChart',
   mixins: [resize],
   props: {
-    category: {
-      type: Array
-    },
-    serieName: {
-      type: String
-    },
-    data: {
-      type: Array
-    },
     smooth: {
-      type: Boolean
+      type: Boolean,
+      default: () => true
     },
     title: {
-      type: String
+      type: String,
+      default: () => '综合图表'
     },
     width: {
       type: String,
@@ -31,6 +24,12 @@ export default {
     height: {
       type: String,
       default: '500px'
+    },
+    source: {
+      type: Object
+    },
+    series: {
+      type: Array
     }
   },
   data() {
@@ -41,7 +40,8 @@ export default {
           trigger: 'axis',
           position: function(pt) {
             return [pt[0], '10%']
-          }
+          },
+          confine: true
         },
         title: {
           left: 'center',
@@ -96,24 +96,33 @@ export default {
             }
           }],
         dataset: {
-          source: {
-            category: this.category,
-            data: this.data
-          }
+          source: this.source
         },
-        series: [
-          {
-            name: this.serieName,
-            type: 'line',
-            smooth: this.smooth,
-            symbol: 'none',
-            connectNulls: true,
-            sampling: 'average',
-            itemStyle: {
-              color: 'rgb(255, 70, 131)'
-            }
-          }
-        ]
+        series: this.series
+      }
+    }
+  },
+  watch: {
+    series: {
+      deep: true,
+      handler: function(newValue) {
+        console.log('检测到series更改')
+        this.chart.clear()
+        this.options.series = newValue
+        this.chart.setOption(this.options)
+        console.log(JSON.stringify(this.options))
+        this.$forceUpdate()
+      }
+    },
+    source: {
+      deep: true,
+      handler: function(newValue) {
+        console.log('检测到source更改')
+        this.chart.clear()
+        this.options.dataset.source = newValue
+        this.chart.setOption(this.options)
+        console.log(JSON.stringify(this.options))
+        this.$forceUpdate()
       }
     }
   },
@@ -124,6 +133,7 @@ export default {
     initChart() {
       this.chart = echarts.init(this.$el)
       this.chart.setOption(this.options)
+      // eslint-disable-next-line no-unused-vars
       this.chart.on('dataZoom', event => {
         const dataZoom0 = this.chart.getOption().dataZoom[0]
         const startValue = dataZoom0.startValue

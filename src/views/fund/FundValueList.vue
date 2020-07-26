@@ -150,6 +150,7 @@
                 <el-row gutter="20">
                   <el-col span="24">
                     <el-label color="danger">为方便后期业绩跟踪，请将下面邮箱地址复制黏贴到产品所在托管，绑定成功前的净值请以模板自行上传或者联系管理员</el-label>
+                    <el-label color="danger" size="title">非托管方邮箱发送的数据将不会被处理，请注意！</el-label>
                   </el-col>
                 </el-row>
                 <el-row>

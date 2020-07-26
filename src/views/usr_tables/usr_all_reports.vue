@@ -65,7 +65,9 @@
 
     <!--浮出的对话框-->
     <el-dialog
+      :key="Math.random()"
       :title="尽调报告"
+      :v-if="dialogFormVisible"
       :visible.sync="dialogFormVisible"
       width="80%"
     >
@@ -128,7 +130,7 @@ import store from '@/store/index'
 export default {
   name: 'UsrAllReports',
   // eslint-disable-next-line vue/no-unused-components
-  components: { MarkdownEditor, DynamicTable },
+  components: { MarkdownEditor, DynamicTable, SingleFile },
   directives: { waves },
   filters: {
     componentFilter(isStr) {
@@ -327,8 +329,7 @@ export default {
       }
       if (!resp) {
         this.$message.error('操作失败！！！！请重新登录！！！')
-      } else {
-        this.$message.success('操作成功！')
+        return
       }
       this.currentQList = resp
       this.dialogFormVisible = true
@@ -341,6 +342,7 @@ export default {
       const { data: resp } = await this.$axios.post('/secure/approval/overview/' + this.currentTicket + '?userid=' + this.$store.getters.userid, this.currentQList)
       if (!resp) {
         this.$message.error('保存失败！！！！请重新登录！！！')
+        return
       } else {
         this.$message.success('保存成功！')
       }
