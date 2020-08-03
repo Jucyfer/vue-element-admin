@@ -3,7 +3,9 @@
     <!--    <el-table-column label="Order_No" min-width="200">-->
     <el-table-column label="机构名称" min-width="200">
       <template slot-scope="{row}">
+        <router-link :to="'/orgList/detail/'+row.pid">
         {{ row.pname }}
+        </router-link>
       </template>
     </el-table-column>
     <!--    <el-table-column label="Price" width="195" align="center">-->

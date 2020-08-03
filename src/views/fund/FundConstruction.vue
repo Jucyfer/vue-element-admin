@@ -15,7 +15,7 @@
       <el-col span="8">
         <!--        <el-label size="main-title" color="placeholder-text" shadow="1">左穿梭列表占位符</el-label>-->
         <el-row gutter="20" :class="['el-row-wrap']">
-          <el-col span="16">
+          <el-col span="12">
             <el-date-picker
               v-model="dateSelected"
               type="daterange"
@@ -30,7 +30,7 @@
             >
             </el-date-picker>
           </el-col>
-          <el-col span="8">
+          <el-col span="12">
 <!--            <el-tooltip content="新增基金" placement="top" effect="light">-->
 <!--              <el-button size="medium" class="el-icon-circle-plus-outline" circle></el-button>-->
 <!--            </el-tooltip>-->
@@ -152,7 +152,7 @@
               <span>{{ row.maxDrawDown | valueValidator }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="风险收益比" align="center" sortable prop="riskReturnRatio">
+          <el-table-column label="收益风险比" align="center" sortable prop="riskReturnRatio">
             <template slot-scope="{row}">
               <span>{{ row.riskReturnRatio | valueValidator }}</span>
             </template>

@@ -6,8 +6,8 @@
 import echarts from 'echarts'
 require('echarts/theme/macarons') // echarts theme
 import resize from './mixins/resize'
-
 export default {
+  name: 'GaugeChart',
   mixins: [resize],
   props: {
     className: {
@@ -22,13 +22,13 @@ export default {
       type: String,
       default: '300px'
     },
-    pieLegend: {
-      type: Array,
-      default: () => []
+    gaugeValue: {
+      type: Number,
+      default: () => 10
     },
-    pieSerie: {
-      type: Array,
-      default: () => []
+    max: {
+      type: Number,
+      default: () => 100
     }
   },
   data() {
@@ -36,38 +36,38 @@ export default {
       chart: null,
       options: {
         tooltip: {
-          trigger: 'item',
-          formatter: '{a} <br/>{b} : {c} ({d}%)'
-        },
-        legend: {
-          left: 'center',
-          bottom: '10',
-          data: this.pieLegend
+          formatter: '{b} <br/>{a} : {c}'
         },
         series: [
           {
-            name: '基金策略分布',
-            type: 'pie',
-            roseType: 'radius',
-            radius: [15, 95],
-            center: ['50%', '38%'],
-            data: this.pieSerie,
-            animationEasing: 'cubicInOut',
-            animationDuration: 2600
+            name: '总用户数',
+            type: 'gauge',
+            max: this.max,
+            splitNumber: 5,
+            detail: { formatter: '{value}' },
+            axisTick: {
+              splitNumber: 5
+            },
+            axisLabel: {
+              formatter: function(value) {
+                return parseInt(value)
+              }
+            },
+            data: [{ value: this.gaugeValue, name: '负载指标' }]
           }
         ]
       }
     }
   },
   watch: {
-    pieLegend(newValue) {
+    gaugeValue(newValue) {
       this.chart.clear()
-      this.options.legend.data = newValue
+      this.options.series[0].data[0].value = newValue
       this.chart.setOption(this.options)
     },
-    pieSerie(newValue) {
+    max(newValue) {
       this.chart.clear()
-      this.options.series[0].data = newValue
+      this.options.series[0].max = newValue
       this.chart.setOption(this.options)
     }
   },
@@ -89,5 +89,10 @@ export default {
       this.chart.setOption(this.options)
     }
   }
+
 }
 </script>
+
+<style scoped>
+
+</style>

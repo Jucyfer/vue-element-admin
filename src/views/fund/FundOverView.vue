@@ -30,7 +30,7 @@
       ></el-table-column>
       <el-table-column label="基金产品" align="center">
         <template slot-scope="{row}">
-          <el-link @click.prevent="handleExamine(row)" :underline="false"><span>{{ row.fundName }}</span></el-link>
+          <el-link :underline="false" @click.prevent="handleExamine(row)"><span>{{ row.fundName }}</span></el-link>
         </template>
       </el-table-column>
       <el-table-column label="备案编码" align="center">
@@ -56,7 +56,7 @@
       >
         <template slot-scope="{row}">
           <div v-if="!row.strategy || !row.strategy.length">--</div>
-          <div :key="Math.random()" v-else>
+          <div v-else :key="Math.random()">
             <el-tag v-for="item in row.strategy" :key="item + Math.random()">{{ item | strategyFilter }}</el-tag>
           </div>
         </template>
@@ -86,7 +86,7 @@
           <span>{{ row.maxDrawDown | valueValidator }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="风险收益比" align="center" sortable prop="riskReturnRatio">
+      <el-table-column label="收益风险比" align="center" sortable prop="riskReturnRatio">
         <template slot-scope="{row}">
           <span>{{ row.riskReturnRatio | valueValidator }}</span>
         </template>
@@ -221,8 +221,8 @@ export default {
       },
       importanceOptions: [1, 2, 3],
       sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
-      search:{
-          fuzzyInput:''
+      search: {
+        fuzzyInput: ''
       },
       tableKey: 0
     }

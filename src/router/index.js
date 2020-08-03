@@ -181,10 +181,12 @@ export const constantRoutes = [
         path: '',
         component: () => import('@/views/fund/FundConstruction.vue'),
         name: 'fundconstructtest',
-        meta: { title: '基金配置（临）', icon: 'favorite', noCache: true }
+        meta: { title: '基金配置（临）', icon: 'favorite', noCache: true },
+        hidden: true
       },
+
       {
-        path: '/:combineName',
+        path: ':combineName',
         component: () => import('@/views/fund/FundConstruction.vue'),
         name: 'fundconstruct',
         meta: { title: '组合基金配置', icon: 'excel', noCache: true, activeMenu: '/combinefund' },
@@ -202,7 +204,7 @@ export const constantRoutes = [
     children: [
       {
         path: '',
-        component: () => import('@/views/competition/Competition.vue'),
+        component: () => import('@/views/fund/AfterInvestManage.vue'),
         name: 'afterInvest',
         meta: { title: '投后管理（G）', icon: 'money', noCache: true }
       }

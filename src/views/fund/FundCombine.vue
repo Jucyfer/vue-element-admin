@@ -1,13 +1,13 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <el-input
-        v-model="listQuery.title"
-        placeholder="Title"
-        style="width: 200px;"
-        class="filter-item"
-        @keyup.enter.native="console.log(1234)"
-      />
+      <!--      <el-input-->
+      <!--        v-model="productKeyword"-->
+      <!--        placeholder="Title"-->
+      <!--        style="width: 200px;"-->
+      <!--        class="filter-item"-->
+      <!--        @keyup.enter.native="console.log(1234)"-->
+      <!--      />-->
       <el-button
         class="filter-item"
         style="margin-left: 10px;"
@@ -91,7 +91,7 @@
           <span>{{ row.maxDrawDown | valueValidator }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="风险收益比" align="center" prop="temp">
+      <el-table-column label="收益风险比" align="center" prop="temp">
         <template slot-scope="{row}">
           <span>{{ row.riskReturnRatio | valueValidator }}</span>
         </template>
@@ -121,15 +121,15 @@
             配置
           </el-button>
           <!--          弹框净值走势-->
-          <el-button size="mini" type="success" @click="handleExamine(row)">
+          <el-button v-if="row.hasChildren" size="mini" type="success" @click="handleExamine(row)">
             查看
           </el-button>
           <!--          刷新母基金各项统计数据-->
-          <el-button size="mini" type="success" @click="handleExamine(row)">
+          <el-button v-if="row.hasChildren" size="mini" type="success" @click="handleRefresh(row)">
             刷新
           </el-button>
           <!--          弹框净值走势-->
-          <el-button v-if="row.hasChildren && row.creatorId === $store.getters.userid" size="mini" type="danger" @click="handleExamine(row)">
+          <el-button v-if="row.hasChildren && row.creatorId === $store.getters.userid" size="mini" type="danger" @click="handleDelete(row)">
             删除
           </el-button>
         </template>
@@ -195,7 +195,6 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <!--        随便加的（结束）-->
         <el-button @click="metaDialogVisible = false">
           取消
         </el-button>
@@ -204,14 +203,67 @@
         </el-button>
       </div>
     </el-dialog>
+    <el-dialog
+      :key="Math.random()"
+      :close-on-click-modal="false"
+      :title="currentName"
+      :visible.sync="retDialogVisible"
+      width="80%"
+      class="statisticDialog"
+      @close="handleClearChart"
+    >
+      <el-row gutter="20" class="container-row">
+        <simplechart
+          :key="Math.random()"
+          width="100%"
+          height="500px"
+          :category.sync="currentCategory"
+          :data.sync="currentData"
+          :serie-name.sync="data"
+          title="走势图"
+        />
+      </el-row>
+      <el-row gutter="20" class="container-row">
+        <span>数据概览</span>
+      </el-row>
+      <fund-summary :key="Math.random()" width="100%" :fund-data="currentRow"></fund-summary>
+      <el-row gutter="20" class="container-row">
+        <span>净值明细</span>
+      </el-row>
+      <el-row gutter="20" class="container-row">
+        <el-table
+          :data="currentDisplay"
+          border
+          fit
+          max-height="600px"
+        >
+          <el-table-column label="日期" align="center" sortable prop="date">
+            <template slot-scope="{row}">
+              <span>{{ row.date }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column label="净值" align="center">
+            <template slot-scope="{row}">
+              <span>{{ row.value }}</span>
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-row>
+    </el-dialog>
     <!--    <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />-->
   </div>
 </template>
 
 <script>
 import store from '@/store/index'
+import simplechart from '@/components/Charts/SingleDataLineChart'
+import fundSummary from '@/components/Panel/FundSummary'
 export default {
   name: 'FundCombine',
+  components: {
+    simplechart,
+    fundSummary
+  },
   filters: {
     valueValidator(param) {
       return param == null || param == 0 ? '--' : param
@@ -232,6 +284,13 @@ export default {
   },
   data() {
     return {
+      currentCategory: [],
+      currentData: [],
+      currentRow: {},
+      currentName: '',
+      currentDisplay: [],
+      retDialogVisible: false,
+      retContainer: {},
       tableList: [],
       listQuery: {
         page: 1,
@@ -254,6 +313,7 @@ export default {
         proportion: '',
         notes: ''
       },
+      productKeyword: '',
       metaFormState: ''
     }
   },
@@ -278,7 +338,30 @@ export default {
       resolve(resp)
     },
     handleExamine(row) {
-      return
+      this.retDialogVisible = true
+      this.currentRow = row
+      this.currentDisplay = row.display
+      this.currentCategory = row.category
+      this.currentData = row.ret
+      this.currentName = row.fundName
+      this.$forceUpdate()
+    },
+    handleClearChart() {
+      this.currentRow = {}
+      this.currentDisplay = []
+      this.currentCategory = []
+      this.currentData = []
+      this.currentName = ''
+      this.$forceUpdate()
+    },
+    async handleDelete(row) {
+      const { data: resp } = await this.$axios.delete('/secure/fundcombine/' + row.creatorId + '/' + row.fundName)
+      if (resp == 'success') {
+        this.$message.success('操作成功！')
+        this.initTableList()
+      } else {
+        this.$message.error('操作失败！')
+      }
     },
     handleEdit(row) {
       this.metaFormState = 'edit'
@@ -292,6 +375,34 @@ export default {
         notes: row.notes
       }
       this.metaDialogVisible = true
+    },
+    async handleRefresh(row) {
+      // /fundcombine/{userid}/{combineName}/refresh/{combineId}
+      const { data } = await this.$axios.get('/secure/fundcombine/' + row.creatorId + '/' + row.fundName + '/refresh/' + row.fundNo)
+      if (data) {
+        this.$message.success('刷新成功！')
+      }
+      const {
+        lastValue,
+        profitPresentWeek,
+        profitPresentMonth,
+        annualRate,
+        maxDrawDown,
+        riskReturnRatio,
+        sharpRate,
+        lastDate,
+        maintainDays
+      } = data
+      row.lastValue = lastValue
+      row.profitPresentWeek = profitPresentWeek
+      row.profitPresentMonth = profitPresentMonth
+      row.annualRate = annualRate
+      row.maxDrawDown = maxDrawDown
+      row.riskReturnRatio = riskReturnRatio
+      row.sharpRate = sharpRate
+      row.lastDate = lastDate
+      row.maintainDays = maintainDays
+      this.initTableList()
     },
     handleConfig(row) {
       this.$router.push({

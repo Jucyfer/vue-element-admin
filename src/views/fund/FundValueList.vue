@@ -62,7 +62,7 @@
           <span>{{ row.maxDrawDown | valueValidator }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="风险收益比" align="center" sortable prop="riskReturnRatio">
+      <el-table-column label="收益风险比" align="center" sortable prop="riskReturnRatio">
         <template slot-scope="{row}">
           <span>{{ row.riskReturnRatio | valueValidator }}</span>
         </template>

@@ -16,7 +16,8 @@ const state = {
   mobile: '',
   mail: '',
   businessCardId: '',
-  position: []
+  position: [],
+  intervalId: -1
 }
 
 const mutations = {
@@ -58,13 +59,16 @@ const mutations = {
   },
   SET_BUSINESSCARDID: (state, businessCardId) => {
     state.businessCardId = businessCardId
+  },
+  SET_INTERVAL: (state, intervalId) => {
+    state.intervalId = intervalId
   }
 }
 
 const actions = {
-  async keepalive(state) {
-    await keepalive(state.userid)
-  },
+  // async keepalive(state) {
+  //   await keepalive(state.userid)
+  // },
   // user login
   async login({ commit }, userInfo) {
     const key = await getSecureKey()
@@ -78,6 +82,7 @@ const actions = {
         if (mytoken) {
           commit('SET_TOKEN', mytoken)
           setToken(mytoken)
+          // commit('SET_INTERVAL', setInterval(keepalive, 60000))
           resolve()
         } else {
           reject(new Error('登录失败'))
@@ -115,6 +120,7 @@ const actions = {
   getInfo({ commit, state }) {
     return new Promise((resolve, reject) => {
       getInfo(state.token).then(response => {
+        commit('SET_INTERVAL', setInterval(keepalive, 60000))
         const data = response
         if (!data) {
           reject('Verification failed, please Login again.')
@@ -165,8 +171,9 @@ const actions = {
 
   // user logout
   logout({ commit, state, dispatch }) {
+    clearInterval(state.intervalId)
     return new Promise((resolve, reject) => {
-      logout(state.token).then(() => {
+      logout().then(() => {
         commit('SET_TOKEN', '')
         commit('SET_ROLES', [])
         removeToken()

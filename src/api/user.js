@@ -47,8 +47,8 @@ export function updateUserInfo(data) {
 }
 export function logout() {
   return request({
-    url: '/vue-element-admin/user/logout',
-    method: 'post'
+    url: '/secure/logout',
+    method: 'get'
   })
 }
 
@@ -92,10 +92,9 @@ export function deleteUser(id) {
   })
 }
 
-export function keepalive(id) {
+export function keepalive() {
   return request({
     url: '/secure/alive',
-    method: 'post',
-    data: { userid: id }
+    method: 'get'
   })
 }

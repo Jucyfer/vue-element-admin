@@ -1,16 +1,7 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <el-input v-model="listQuery.title" placeholder="Title" style="width: 200px;" class="filter-item" @keyup.enter.native="console.log(1234)" />
-      <el-select v-model="listQuery.importance" placeholder="Imp" clearable style="width: 90px" class="filter-item">
-        <el-option v-for="item in importanceOptions" :key="item" :label="item" :value="item" />
-      </el-select>
-      <el-select v-model="listQuery.sort" style="width: 140px" class="filter-item" @change="console.log(1234)">
-        <el-option v-for="item in sortOptions" :key="item.key" :label="item.label" :value="item.key" />
-      </el-select>
-      <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="console.log(1234)">
-        查找
-      </el-button>
+      <el-input v-model="keyword" placeholder="Title" style="width: 200px;" class="filter-item" />
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-refresh" @click="initList">
         刷新列表
       </el-button>
@@ -19,7 +10,7 @@
     <el-table
       :key="tableKey"
       v-loading="listLoading"
-      :data="list"
+      :data="list.filter(data => !keyword || data.companyFullName_CH.toLowerCase().includes(keyword.toLowerCase()))"
       border
       fit
       highlight-current-row
@@ -129,7 +120,8 @@ export default {
       sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
       tableKey: 0,
       list: [],
-      listLoading: false
+      listLoading: false,
+        keyword:''
     }
   },
   computed: {

@@ -1,62 +1,66 @@
 <template>
   <el-row :gutter="40" class="panel-group">
     <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <div class="card-panel" @click="handleSetLineChartData('newVisitis')">
+      <!--      <div class="card-panel" @click="handleSetLineChartData('newVisitis')">-->
+      <div class="card-panel">
         <div class="card-panel-icon-wrapper icon-people">
-<!--          <svg-icon icon-class="peoples" class-name="card-panel-icon" />-->
+          <!--          <svg-icon icon-class="peoples" class-name="card-panel-icon" />-->
           <svg-icon icon-class="user" class-name="card-panel-icon" />
         </div>
         <div class="card-panel-description">
           <div class="card-panel-text">
-<!--            New Visits-->
+            <!--            New Visits-->
             新增管理人
           </div>
-          <count-to :start-val="0" :end-val="102400" :duration="2600" class="card-panel-num" />
+          <count-to :start-val="0" :end-val="digest.lastweekIncrPid" :duration="2600" class="card-panel-num" />
         </div>
       </div>
     </el-col>
     <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <div class="card-panel" @click="handleSetLineChartData('messages')">
+      <!--      <div class="card-panel" @click="handleSetLineChartData('messages')">-->
+      <div class="card-panel">
         <div class="card-panel-icon-wrapper icon-message">
-<!--          <svg-icon icon-class="message" class-name="card-panel-icon" />-->
+          <!--          <svg-icon icon-class="message" class-name="card-panel-icon" />-->
           <svg-icon icon-class="peoples" class-name="card-panel-icon" />
         </div>
         <div class="card-panel-description">
           <div class="card-panel-text">
-<!--            Messages-->
+            <!--            Messages-->
             累计管理人
           </div>
-          <count-to :start-val="0" :end-val="81212" :duration="3000" class="card-panel-num" />
+          <count-to :start-val="0" :end-val="digest.totalPid" :duration="3000" class="card-panel-num" />
         </div>
       </div>
     </el-col>
     <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <div class="card-panel" @click="handleSetLineChartData('purchases')">
+      <!--      <div class="card-panel" @click="handleSetLineChartData('purchases')">-->
+      <div class="card-panel">
         <div class="card-panel-icon-wrapper icon-money">
-<!--          <svg-icon icon-class="money" class-name="card-panel-icon" />-->
+          <!--          <svg-icon icon-class="money" class-name="card-panel-icon" />-->
           <svg-icon icon-class="skill" class-name="card-panel-icon" />
         </div>
         <div class="card-panel-description">
           <div class="card-panel-text">
-<!--            Purchases-->
+            <!--            Purchases-->
             尽调报告数量
           </div>
-          <count-to :start-val="0" :end-val="30" :duration="3200" class="card-panel-num" />
+          <count-to :start-val="0" :end-val="digest.totalQuest" :duration="3200" class="card-panel-num" />
         </div>
       </div>
     </el-col>
     <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <div class="card-panel" @click="handleSetLineChartData('shoppings')">
+      <!--      <div class="card-panel" @click="handleSetLineChartData('shoppings')">-->
+      <div class="card-panel">
         <div class="card-panel-icon-wrapper icon-shopping">
-<!--          <svg-icon icon-class="shopping" class-name="card-panel-icon" />-->
+          <!--          <svg-icon icon-class="shopping" class-name="card-panel-icon" />-->
           <svg-icon icon-class="eye-open" class-name="card-panel-icon" />
         </div>
         <div class="card-panel-description">
           <div class="card-panel-text">
-<!--            Shoppings-->
-            风险事件数
+            <!--            Shoppings-->
+            总用户数
           </div>
-          <count-to :start-val="0" :end-val="0" :duration="3600" class="card-panel-num" />
+          <count-to :start-val="0" :end-val="digest.totalUser" :duration="3600" class="card-panel-num" />
         </div>
       </div>
     </el-col>
@@ -70,10 +74,46 @@ export default {
   components: {
     CountTo
   },
-  methods: {
-    handleSetLineChartData(type) {
-      this.$emit('handleSetLineChartData', type)
+  props: {
+    digest: {
+      type: Object,
+      default: () => {
+        return {
+          lastweekIncrPid: 0,
+          totalQuest: 0,
+          totalPid: 0,
+          totalUser: 0,
+          refCategory: [],
+          refRet: [],
+          activeUsers: 0
+        }
+      }
     }
+  },
+  data() {
+    return {
+      // globalDigest: {
+      //   lastweekIncrPid: 0,
+      //   totalQuest: 0,
+      //   totalPid: 0,
+      //   totalUser: 0,
+      //   refCategory: [],
+      //   refRet: []
+      // }
+    }
+  },
+  created() {
+    // this.initGlobalDigest()
+  },
+  methods: {
+    // handleSetLineChartData(type) {
+    //   this.$emit('handleSetLineChartData', type)
+    // },
+    // async initGlobalDigest() {
+    //   const { data } = await this.$axios.get('/secure/maintain/global/digest')
+    //   this.globalDigest = data
+    //   this.$emit('handleSetLineChartData', data)
+    // }
   }
 }
 </script>

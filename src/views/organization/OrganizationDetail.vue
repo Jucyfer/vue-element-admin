@@ -1,6 +1,6 @@
 <template>
   <div style="padding: 20px">
-    <el-label shadow="1" size="main-title" color="placeholder-text">机构详情页（{{ pathPid }}）</el-label>
+    <el-label shadow="1" size="main-title" color="placeholder-text">机构详情（{{ orgDesc.companyFullName_CH }}）</el-label>
     <el-collapse v-model="activeNames">
       <el-collapse-item name="0">
         <template slot="title">
@@ -11,7 +11,7 @@
             <el-label size="sub-title" color="major-text">机构名称</el-label>
           </el-col>
           <el-col span="24">
-            <el-label size="body" color="minor-text">机构名称</el-label>
+            <el-label size="body" color="minor-text">{{ orgDesc.companyFullName_CH }}</el-label>
           </el-col>
         </el-row>
         <el-row gutter="20">
@@ -19,23 +19,23 @@
             <el-label size="sub-title" color="major-text">机构会员号</el-label>
           </el-col>
           <el-col span="24">
-            <el-label size="body" color="minor-text">机构会员号</el-label>
+            <el-label size="body" color="minor-text">{{ orgDesc.registrationSerial }}</el-label>
           </el-col>
         </el-row>
         <el-row gutter="20">
           <el-col span="24">
-            <el-label size="sub-title" color="major-text">协会规模</el-label>
+            <el-label size="sub-title" color="major-text">协会规模（万元）</el-label>
           </el-col>
           <el-col span="24">
-            <el-label size="body" color="minor-text">协会规模</el-label>
+            <el-label size="body" color="minor-text">{{ orgDesc.amacFundScale }}</el-label>
           </el-col>
         </el-row>
         <el-row gutter="20">
           <el-col span="24">
-            <el-label size="sub-title" color="major-text">管理规模</el-label>
+            <el-label size="sub-title" color="major-text">管理规模（万元）</el-label>
           </el-col>
           <el-col span="24">
-            <el-label size="body" color="minor-text">管理规模</el-label>
+            <el-label size="body" color="minor-text">{{ (orgDesc.managementScale * 10000) | valueValidator }}</el-label>
           </el-col>
         </el-row>
         <el-row gutter="20">
@@ -43,7 +43,8 @@
             <el-label size="sub-title" color="major-text">基金策略</el-label>
           </el-col>
           <el-col span="24">
-            <el-label size="body" color="minor-text">基金策略</el-label>
+            <el-tag v-for="item in orgDesc.strategy" :key="item + Math.random()">{{ item | strategyFilter }}</el-tag>
+            <!--            <el-label size="body" color="minor-text">{{ orgDesc.strategy }}</el-label>-->
           </el-col>
         </el-row>
         <el-row gutter="20">
@@ -51,7 +52,7 @@
             <el-label size="sub-title" color="major-text">办公地址</el-label>
           </el-col>
           <el-col span="24">
-            <el-label size="body" color="minor-text">办公地址</el-label>
+            <el-label size="body" color="minor-text">{{ orgDesc.officeAddr }}</el-label>
           </el-col>
         </el-row>
         <el-row gutter="20">
@@ -59,7 +60,7 @@
             <el-label size="sub-title" color="major-text">对接人</el-label>
           </el-col>
           <el-col span="24">
-            <el-label size="body" color="minor-text">对接人</el-label>
+            <el-label size="body" color="minor-text">{{ orgDesc.agent | valueValidator }}</el-label>
           </el-col>
         </el-row>
       </el-collapse-item>
@@ -158,6 +159,12 @@ import store from '@/store/index'
 export default {
   name: 'TestArea',
   filters: {
+    valueValidator(param) {
+      return param == null || param == 0 ? '--' : param
+    },
+    strategyFilter(param) {
+      return store.getters.strategyMap[param]
+    },
     componentFilter(isStr) {
       let realIs = ''
       switch (isStr) {
@@ -212,7 +219,8 @@ export default {
       currentQList: [],
       selectedCascade: [],
       isStaffListLoading: false,
-      isFundListLoading: false
+      isFundListLoading: false,
+      orgDesc: {}
     }
   },
   watch: {
@@ -223,6 +231,7 @@ export default {
   async created() {
     this.$store.dispatch('questCommon/init_quest_CN_Map')
     this.$store.dispatch('questCommon/init_quest_Meta_Map')
+    this.getOrgDesc()
 
     this.tempRoute = Object.assign({}, this.$route)
     this.setTagsViewTitle()
@@ -247,6 +256,12 @@ export default {
     customContentWrapper(data) {
       const wrapMap = store.getters.questMap
       return wrapMap[data] || data
+    },
+    async getOrgDesc() {
+      const pid = this.$route.params && this.$route.params.pid
+      if (!pid) return
+      const { data } = await this.$axios.get('/secure/infomation/managers/' + pid)
+      this.orgDesc = data
     },
 
     // 对话框加载函数
