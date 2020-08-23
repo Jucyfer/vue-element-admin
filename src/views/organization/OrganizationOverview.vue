@@ -5,10 +5,14 @@
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-refresh" @click="initList">
         刷新列表
       </el-button>
+      <el-button v-waves class="filter-item" type="primary" icon="el-icon-refresh" @click="resetTable">
+        复位
+      </el-button>
     </div>
 
     <el-table
       :key="tableKey"
+      ref="orgTable"
       v-loading="listLoading"
       :data="list.filter(data => !keyword || data.companyFullName_CH.toLowerCase().includes(keyword.toLowerCase()))"
       border
@@ -42,7 +46,7 @@
       >
         <template slot-scope="{row}">
           <div v-if="!row.strategy.length">--</div>
-          <div :key="Math.random()" v-else>
+          <div v-else :key="Math.random()">
             <el-tag v-for="item in row.strategy" :key="item + Math.random()">{{ item | strategyFilter }}</el-tag>
           </div>
         </template>
@@ -121,7 +125,7 @@ export default {
       tableKey: 0,
       list: [],
       listLoading: false,
-        keyword:''
+      keyword: ''
     }
   },
   computed: {
@@ -152,6 +156,10 @@ export default {
       //
       // })
       return row.strategy.indexOf(value) >= 0
+    },
+    resetTable() {
+      this.$refs.orgTable.clearSort()
+      this.$refs.orgTable.clearFilter()
     },
     handleExamine(row) {
       return

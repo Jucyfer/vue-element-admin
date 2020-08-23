@@ -43,7 +43,7 @@
       </el-table-column>
       <el-table-column label="创建人" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.creatorId }}</span>
+          <span>{{ row.creatorName }}</span>
         </template>
       </el-table-column>
       <el-table-column label="产品规模（万）" align="center" prop="temp">
@@ -64,6 +64,14 @@
       <el-table-column label="产品类型" align="center" prop="temp">
         <template slot-scope="{row}">
           <span>{{ row.fundType }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="产品策略" align="center" prop="temp">
+        <template slot-scope="{row}">
+          <div v-if="!row.strategy || !row.strategy.length">--</div>
+          <div :key="Math.random()" v-else>
+            <el-tag v-for="item in row.strategy" :key="item + Math.random()">{{ item | strategyFilter }}</el-tag>
+          </div>
         </template>
       </el-table-column>
       <el-table-column label="最新拟合累计净值" align="center" prop="temp">

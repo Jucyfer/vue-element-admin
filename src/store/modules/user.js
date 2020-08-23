@@ -120,6 +120,7 @@ const actions = {
   getInfo({ commit, state }) {
     return new Promise((resolve, reject) => {
       getInfo(state.token).then(response => {
+        clearInterval(state.intervalId)
         commit('SET_INTERVAL', setInterval(keepalive, 60000))
         const data = response
         if (!data) {

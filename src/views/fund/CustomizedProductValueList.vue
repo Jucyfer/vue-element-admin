@@ -102,6 +102,9 @@
           <el-button size="mini" type="success" @click="handleExamine(row)">
             查看
           </el-button>
+          <el-button size="mini" type="success" @click="clearData(row)">
+            清空数据
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -359,6 +362,11 @@ export default {
     afterUpload() {
       this.uploaded = true
       this.uploading = false
+    },
+    async clearData(row) {
+      const { data } = await this.$axios.delete('/secure/custom/fund/clear/' + row.fundNo)
+      this.$message.success('删除成功；来自网页的消息：' + JSON.stringify(data))
+      this.initList()
     }
   }
 

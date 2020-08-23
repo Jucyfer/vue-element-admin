@@ -664,7 +664,7 @@ const createRouter = () => new Router({
 })
 
 const router = createRouter()
-
+// 动态加载路由
 // Detail see: https://github.com/vuejs/vue-router/issues/1234#issuecomment-357941465
 export function resetRouter() {
   const newRouter = createRouter()

@@ -138,6 +138,9 @@
           <el-button size="mini" :type="row.isEditMode?'success':'warn'" @click="handleEdit(row)">
             {{ row.isEditMode?'保存':'修改' }}
           </el-button>
+          <el-button size="mini" type="danger" @click="deleteCustomFund(row)">
+            删除
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -333,6 +336,11 @@ export default {
         }
       }
       this.$forceUpdate()
+    },
+    async deleteCustomFund(row) {
+      const { data } = await this.$axios.delete('/secure/custom/fund/delete/' + row.fundNo)
+      this.$message.success('删除成功；来自网页的消息：' + JSON.stringify(data))
+      this.initList()
     },
     // 显示对话框
     handleShowCreateDialog() {

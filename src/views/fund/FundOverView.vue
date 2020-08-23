@@ -10,10 +10,14 @@
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-refresh" @click="initList">
         刷新列表
       </el-button>
+      <el-button v-waves class="filter-item" type="primary" icon="el-icon-refresh" @click="resetTable">
+        复位
+      </el-button>
     </div>
 
     <el-table
       :key="tableKey"
+      ref="fundTable"
       v-loading="listLoading"
       :data="list.filter(data => !search.fuzzyInput || data.fundName.toLowerCase().includes(search.fuzzyInput.toLowerCase()) || data.fundNo.toLowerCase() == search.fuzzyInput.toLowerCase()) "
       border
@@ -289,6 +293,10 @@ export default {
     },
     sortMaxDrawdown(a, b) {
       return parseFloat(a.maxDrawDown) - parseFloat(b.maxDrawDown)
+    },
+    resetTable() {
+      this.$refs.fundTable.clearSort()
+      this.$refs.fundTable.clearFilter()
     }
   }
 

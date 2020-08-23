@@ -3,7 +3,7 @@ import store from '@/store/index'
 // import axios from 'axios'
 export function getSecureKey() {
   return request({
-    url: '/secure/btsafekey',
+    url: '/common/btsafekey',
     method: 'get'
   })
 }

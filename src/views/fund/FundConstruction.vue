@@ -547,6 +547,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+  /deep/.el-date-editor--daterange{
+    width:auto;
+  }
   .el-row-wrap {
     padding-top: 10px;
     padding-bottom: 10px;
