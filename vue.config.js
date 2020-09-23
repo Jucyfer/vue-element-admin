@@ -29,6 +29,7 @@ module.exports = {
   // publicPath: '/reportcentertest/',
   publicPath: '/reportcenter/',
   outputDir: 'dist',
+  // outputDir: '/home/jucyfer/文档/工作/BurningTech/红塔/部署/演示/docker_mounts/tomcat/webapps/ROOT/',
   assetsDir: 'static',
   lintOnSave: process.env.NODE_ENV === 'development',
   productionSourceMap: true,

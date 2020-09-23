@@ -7,19 +7,19 @@
       <!--      <el-table-column align="center" label="Role Key" width="220">-->
       <el-table-column align="center" label="角色ID" width="220">
         <template slot-scope="scope">
-          {{ scope.row.key }}
+          {{ scope.row.roleId }}
         </template>
       </el-table-column>
       <!--      <el-table-column align="center" label="Role Name" width="220">-->
       <el-table-column align="center" label="角色名称" width="220">
         <template slot-scope="scope">
-          {{ scope.row.name }}
+          {{ scope.row.roleName }}
         </template>
       </el-table-column>
       <!--      <el-table-column align="header-center" label="Description">-->
       <el-table-column align="header-center" label="描述">
         <template slot-scope="scope">
-          {{ scope.row.description }}
+          {{ scope.row.notes }}
         </template>
       </el-table-column>
       <!--      <el-table-column align="center" label="Operations">-->
@@ -35,25 +35,41 @@
 
     <el-dialog :visible.sync="dialogVisible" :title="dialogType==='edit'?'编辑角色':'新增角色'">
       <el-form :model="role" label-width="80px" label-position="left">
+        <el-form-item label="角色ID">
+          <el-input v-model="role.roleId" placeholder="Auto Generated" :disabled="dialogType!=='edit'" />
+        </el-form-item>
         <el-form-item label="角色名称">
-          <el-input v-model="role.name" placeholder="Role Name" :disabled="dialogType==='edit'" />
+          <el-input v-model="role.roleName" placeholder="Role Name" :disabled="dialogType==='edit'" />
         </el-form-item>
         <el-form-item label="角色描述">
           <el-input
-            v-model="role.description"
+            v-model="role.notes"
             :autosize="{ minRows: 2, maxRows: 4}"
             type="textarea"
             placeholder="请输入角色描述"
           />
         </el-form-item>
-        <el-form-item label="角色权限">
+        <!--        <el-form-item label="从现有角色选择">-->
+        <!--          <el-transfer v-model="debug_selectedRole" :data="rolesList"></el-transfer>-->
+        <!--        </el-form-item>-->
+        <el-form-item label="菜单权限">
+          <!--          <el-tree-->
+          <!--            ref="tree"-->
+          <!--            :check-strictly="checkStrictly"-->
+          <!--            :data="routesData"-->
+          <!--            :props="defaultProps"-->
+          <!--            show-checkbox-->
+          <!--            node-key="path"-->
+          <!--            class="permission-tree"-->
+          <!--          />-->
           <el-tree
             ref="tree"
             :check-strictly="checkStrictly"
             :data="routesData"
             :props="defaultProps"
+            :default-checked-keys="role.privs"
             show-checkbox
-            node-key="path"
+            node-key="menuId"
             class="permission-tree"
           />
         </el-form-item>
@@ -72,10 +88,10 @@ import { deepClone } from '@/utils'
 import { getRoutes, getRoles, addRole, deleteRole, updateRole } from '@/api/role'
 
 const defaultRole = {
-  key: '',
-  name: '',
-  description: '',
-  routes: []
+  roleId: '',
+  roleName: '',
+  notes: '',
+  privs: []
 }
 
 export default {
@@ -84,6 +100,7 @@ export default {
       role: Object.assign({}, defaultRole),
       routes: [],
       rolesList: [],
+      debug_selectedRole: [],
       dialogVisible: false,
       dialogType: 'new',
       checkStrictly: false,
@@ -105,15 +122,37 @@ export default {
   },
   methods: {
     async getRoutes() {
-      const res = await getRoutes()
+      // 原本的代码
+      // const res = await getRoutes()
+      const res = await this.$axios.get('/secure/menu/all')
       this.serviceRoutes = res.data
-      this.routes = this.generateRoutes(res.data)
+      console.log(res.data)
+      // this.routes = this.generateRoutes(res.data)
+      this.routes = this.generateRoutes2(res.data)
     },
     async getRoles() {
-      const res = await getRoles()
+      // const res = await getRoles()
+      const res = await this.$axios.get('/secure/role/scene/list')
       this.rolesList = res.data
     },
-
+    generateRoutes2(routes) {
+      const res = []
+      for (const route of routes) {
+        route.title = route.meta.title
+        const data = {
+          menuId: route.menuId,
+          title: route.meta && route.meta.title
+        }
+        if (route.menuId === 'EFFFFF') {
+          data.disabled = true
+        }
+        if (route.children && route.children.length > 0) {
+          data.children = this.generateRoutes2(route.children)
+        }
+        res.push(data)
+      }
+      return res
+    },
     // Reshape the routes structure so that it looks the same as the sidebar
     generateRoutes(routes, basePath = '/') {
       const res = []
@@ -157,22 +196,26 @@ export default {
     },
     handleAddRole() {
       this.role = Object.assign({}, defaultRole)
-      if (this.$refs.tree) {
-        this.$refs.tree.setCheckedNodes([])
-      }
       this.dialogType = 'new'
       this.dialogVisible = true
+      this.$nextTick(() => {
+        if (this.$refs.tree) {
+          console.log('get tree.')
+          this.$refs.tree.setCheckedKeys(['EFFFFF'])
+        }
+      }
+      )
     },
     handleEdit(scope) {
       this.dialogType = 'edit'
       this.dialogVisible = true
-      this.checkStrictly = true
+      // this.checkStrictly = true
       this.role = deepClone(scope.row)
       this.$nextTick(() => {
-        const routes = this.generateRoutes(this.role.routes)
-        this.$refs.tree.setCheckedNodes(this.generateArr(routes))
+        this.$refs.tree.setCheckedKeys(scope.row.privs)
+        // const routes = this.generateRoutes(this.role.routes)
         // set checked state of a node not affects its father and child nodes
-        this.checkStrictly = false
+        // this.checkStrictly = false
       })
     },
     handleDelete({ $index, row }) {
@@ -209,7 +252,21 @@ export default {
       return res
     },
     async confirmRole() {
+      // console.log(this.debug_selectedRole)
+      console.log('当前选择的节点（key）：', this.$refs.tree.getCheckedKeys(false))
+      const payload = deepClone(this.role)
+      payload.privs = this.$refs.tree.getCheckedKeys(false)
+      console.log(payload)
       const isEdit = this.dialogType === 'edit'
+      if (isEdit) {
+        const { data } = await this.$axios.post('/secure/role/scene', payload)
+        console.log(data)
+      } else {
+        const { data } = await this.$axios.post('/secure/role/scene/add', payload)
+        console.log(data)
+      }
+      // console.log('当前选择的节点（node）：', this.$refs.tree.getCheckedNodes(false))
+      return
 
       const checkedKeys = this.$refs.tree.getCheckedKeys()
       this.role.routes = this.generateTree(deepClone(this.serviceRoutes), '/', checkedKeys)

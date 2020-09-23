@@ -79,6 +79,92 @@ export const constantRoutes = [
     component: () => import('@/views/error-page/401'),
     hidden: true
   },
+  // {
+  //   path: '/documentation',
+  //   component: Layout,
+  //   children: [
+  //     {
+  //       path: 'index',
+  //       component: () => import('@/views/documentation/index'),
+  //       name: 'Documentation',
+  //       meta: { title: 'Documentation', icon: 'documentation' }
+  //     }
+  //   ]
+  // },
+  // {
+  //   path: '/guide',
+  //   component: Layout,
+  //   redirect: '/guide/index',
+  //   children: [
+  //     {
+  //       path: 'index',
+  //       component: () => import('@/views/guide/index'),
+  //       name: 'Guide',
+  //       meta: { title: 'Guide', icon: 'guide', noCache: true }
+  //     }
+  //   ]
+  // },
+  // 这里有一个设置了hidden的内容，其实就是单击用户头像之后弹出来的页面
+  {
+    path: '/profile',
+    component: Layout,
+    redirect: '/profile/index',
+    hidden: true,
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/profile/index'),
+        name: 'Profile',
+        meta: { title: '基本信息', icon: 'user', noCache: true }
+      }
+    ]
+  },
+  {
+    path: '/settings',
+    component: Layout,
+    redirect: '/settings/index',
+    hidden: true,
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/settings/index'),
+        name: 'Settings',
+        meta: { title: '用户设置', icon: 'settings', noCache: true }
+      }
+    ]
+  },
+  {
+    path: '/error',
+    component: Layout,
+    redirect: 'noRedirect',
+    name: 'ErrorPages',
+    hidden: true,
+    meta: {
+      title: 'Error Pages',
+      icon: '404'
+    },
+    children: [
+      {
+        path: '401',
+        component: () => import('@/views/error-page/401'),
+        name: 'Page401',
+        meta: { title: '401', noCache: true }
+      },
+      {
+        path: '404',
+        component: () => import('@/views/error-page/404'),
+        name: 'Page404',
+        meta: { title: '404', noCache: true }
+      }
+    ]
+  }
+]
+
+/**
+ * asyncRoutes
+ * the routes that need to be dynamically loaded based on user roles
+ */
+export const asyncRoutes = [
   {
     path: '/',
     component: Layout,
@@ -210,122 +296,6 @@ export const constantRoutes = [
       }
     ]
   },
-
-  // {
-  //   path: '/documentation',
-  //   component: Layout,
-  //   children: [
-  //     {
-  //       path: 'index',
-  //       component: () => import('@/views/documentation/index'),
-  //       name: 'Documentation',
-  //       meta: { title: 'Documentation', icon: 'documentation' }
-  //     }
-  //   ]
-  // },
-  // {
-  //   path: '/guide',
-  //   component: Layout,
-  //   redirect: '/guide/index',
-  //   children: [
-  //     {
-  //       path: 'index',
-  //       component: () => import('@/views/guide/index'),
-  //       name: 'Guide',
-  //       meta: { title: 'Guide', icon: 'guide', noCache: true }
-  //     }
-  //   ]
-  // },
-
-  // 这里有一个设置了hidden的内容，其实就是单击用户头像之后弹出来的页面
-  {
-    path: '/profile',
-    component: Layout,
-    redirect: '/profile/index',
-    hidden: true,
-    children: [
-      {
-        path: 'index',
-        component: () => import('@/views/profile/index'),
-        name: 'Profile',
-        meta: { title: '基本信息', icon: 'user', noCache: true }
-      }
-    ]
-  },
-  {
-    path: '/settings',
-    component: Layout,
-    redirect: '/settings/index',
-    hidden: true,
-    children: [
-      {
-        path: 'index',
-        component: () => import('@/views/settings/index'),
-        name: 'Settings',
-        meta: { title: '用户设置', icon: 'settings', noCache: true }
-      }
-    ]
-  }
-]
-
-/**
- * asyncRoutes
- * the routes that need to be dynamically loaded based on user roles
- */
-export const asyncRoutes = [
-  {
-    path: '/permission',
-    component: Layout,
-    redirect: '/permission/page',
-    alwaysShow: true, // will always show the root menu
-    name: 'Permission',
-    meta: {
-      // title: 'Permission',
-      title: '权限管理(G)',
-      icon: 'lock',
-      // roles: ['admin', 'editor'] // you can set roles in root nav
-      roles: ['admin'] // you can set roles in root nav
-    },
-    children: [
-      // {
-      //   path: 'page',
-      //   component: () => import('@/views/permission/page'),
-      //   name: 'PagePermission',
-      //   meta: {
-      //     title: 'Page Permission',
-      //     roles: ['admin'] // or you can only set roles in sub nav
-      //   }
-      // },
-      // {
-      //   path: 'directive',
-      //   component: () => import('@/views/permission/directive'),
-      //   name: 'DirectivePermission',
-      //   meta: {
-      //     title: 'Directive Permission'
-      //     // if do not set roles, means: this page does not require permission
-      //   }
-      // },
-      {
-        path: 'user',
-        component: () => import('@/views/permission/user'),
-        name: 'UserManage',
-        meta: {
-          title: '用户管理',
-          roles: ['admin']
-        }
-      },
-      {
-        path: 'role',
-        component: () => import('@/views/permission/role'),
-        name: 'RolePermission',
-        meta: {
-          title: '角色管理',
-          roles: ['admin']
-        }
-      }
-    ]
-  },
-
   // {
   //   path: '/icon',
   //   component: Layout,
@@ -389,32 +359,6 @@ export const asyncRoutes = [
   //     }
   //   ]
   // },
-
-  {
-    path: '/error',
-    component: Layout,
-    redirect: 'noRedirect',
-    name: 'ErrorPages',
-    hidden: true,
-    meta: {
-      title: 'Error Pages',
-      icon: '404'
-    },
-    children: [
-      {
-        path: '401',
-        component: () => import('@/views/error-page/401'),
-        name: 'Page401',
-        meta: { title: '401', noCache: true }
-      },
-      {
-        path: '404',
-        component: () => import('@/views/error-page/404'),
-        name: 'Page404',
-        meta: { title: '404', noCache: true }
-      }
-    ]
-  },
 
   // {
   //   path: '/error-log',
@@ -652,7 +596,56 @@ export const asyncRoutes = [
   //     }
   //   ]
   // },
-
+  {
+    path: '/permission',
+    component: Layout,
+    redirect: '/permission/page',
+    alwaysShow: true, // will always show the root menu
+    name: 'Permission',
+    meta: {
+      // title: 'Permission',
+      title: '权限管理(G)',
+      icon: 'lock',
+      // roles: ['admin', 'editor'] // you can set roles in root nav
+      roles: ['admin'] // you can set roles in root nav
+    },
+    children: [
+      // {
+      //   path: 'page',
+      //   component: () => import('@/views/permission/page'),
+      //   name: 'PagePermission',
+      //   meta: {
+      //     title: 'Page Permission',
+      //     roles: ['admin'] // or you can only set roles in sub nav
+      //   }
+      // },
+      // {
+      //   path: 'directive',
+      //   component: () => import('@/views/permission/directive'),
+      //   name: 'DirectivePermission',
+      //   meta: {
+      //     title: 'Directive Permission'
+      //     // if do not set roles, means: this page does not require permission
+      //   }
+      // },
+      {
+        path: 'user',
+        component: () => import('@/views/permission/user'),
+        name: 'UserManage',
+        meta: {
+          title: '用户管理'
+        }
+      },
+      {
+        path: 'role',
+        component: () => import('@/views/permission/role'),
+        name: 'RolePermission',
+        meta: {
+          title: '角色管理'
+        }
+      }
+    ]
+  },
   // 404 page must be placed at the end !!!
   { path: '*', redirect: '/404', hidden: true }
 ]

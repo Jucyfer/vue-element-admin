@@ -43,7 +43,8 @@
             <el-label size="sub-title" color="major-text">基金策略</el-label>
           </el-col>
           <el-col span="24">
-            <el-tag v-for="item in orgDesc.strategy" :key="item + Math.random()">{{ item | strategyFilter }}</el-tag>
+            <el-label v-if="!orgDesc.strategy || orgDesc.strategy.length===0" size="body" color="minor-text">--</el-label>
+            <el-tag v-for="item in orgDesc.strategy" v-else :key="item + Math.random()">{{ item | strategyFilter }}</el-tag>
             <!--            <el-label size="body" color="minor-text">{{ orgDesc.strategy }}</el-label>-->
           </el-col>
         </el-row>
