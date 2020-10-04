@@ -232,8 +232,12 @@
 
 <script>
 import store from '@/store/index'
+import waves from '@/directive/waves' // waves directive
 export default {
   name: 'CustomizedProductInfoList',
+  directive: {
+    waves
+  },
   filters: {
     dateFilter(param) {
       const date = new Date(parseFloat(param))

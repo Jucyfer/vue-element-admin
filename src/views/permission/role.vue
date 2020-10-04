@@ -2,6 +2,7 @@
   <div class="app-container">
     <!--    <el-button type="primary" @click="handleAddRole">New Role</el-button>-->
     <el-button type="primary" @click="handleAddRole">添加角色</el-button>
+    <el-button type="primary" @click="getRoles">刷新列表</el-button>
 
     <el-table :data="rolesList" style="width: 100%;margin-top:30px;" border>
       <!--      <el-table-column align="center" label="Role Key" width="220">-->
@@ -26,9 +27,9 @@
       <el-table-column align="center" label="操作">
         <template slot-scope="scope">
           <!--          <el-button type="primary" size="small" @click="handleEdit(scope)">Edit</el-button>-->
-          <el-button type="primary" size="small" @click="handleEdit(scope)">编辑</el-button>
+          <el-button v-if="scope.row.roleName !== 'root'" type="primary" size="small" @click="handleEdit(scope)">编辑</el-button>
           <!--          <el-button type="danger" size="small" @click="handleDelete(scope)">Delete</el-button>-->
-          <el-button type="danger" size="small" @click="handleDelete(scope)">删除</el-button>
+          <el-button v-if="scope.row.roleName !== 'root'" type="danger" size="small" @click="handleDelete(scope)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -85,7 +86,7 @@
 <script>
 import path from 'path'
 import { deepClone } from '@/utils'
-import { getRoutes, getRoles, addRole, deleteRole, updateRole } from '@/api/role'
+// import { getRoutes, getRoles, addRole, deleteRole, updateRole } from '@/api/role'
 
 const defaultRole = {
   roleId: '',
@@ -133,7 +134,12 @@ export default {
     async getRoles() {
       // const res = await getRoles()
       const res = await this.$axios.get('/secure/role/scene/list')
-      this.rolesList = res.data
+      if (res.data && res.data.length && res.data.length >= 0) {
+        this.rolesList = res.data
+        this.$message.success('加载成功！')
+      } else {
+        this.$message.error('加载失败！')
+      }
     },
     generateRoutes2(routes) {
       const res = []
@@ -219,18 +225,27 @@ export default {
       })
     },
     handleDelete({ $index, row }) {
-      this.$confirm('Confirm to remove the role?', 'Warning', {
-        confirmButtonText: 'Confirm',
-        cancelButtonText: 'Cancel',
+      this.$confirm('确认移除该角色？', '警告', {
+        confirmButtonText: '确认',
+        cancelButtonText: '取消',
         type: 'warning'
       })
         .then(async() => {
-          await deleteRole(row.key)
-          this.rolesList.splice($index, 1)
-          this.$message({
-            type: 'success',
-            message: 'Delete succed!'
-          })
+          // await deleteRole(row.roleId)
+          const resp = await this.$axios.delete('/secure/role/scene/' + row.roleId)
+          if (resp.data === 'success') {
+            this.rolesList.splice($index, 1)
+            this.$message({
+              type: 'success',
+              message: 'Delete succeed!'
+            })
+            this.getRoles()
+          } else {
+            this.$message({
+              type: 'error',
+              message: 'Delete failed!'
+            })
+          }
         })
         .catch(err => { console.error(err) })
     },
@@ -258,45 +273,55 @@ export default {
       payload.privs = this.$refs.tree.getCheckedKeys(false)
       console.log(payload)
       const isEdit = this.dialogType === 'edit'
+      let resp
       if (isEdit) {
-        const { data } = await this.$axios.post('/secure/role/scene', payload)
-        console.log(data)
+        resp = await this.$axios.post('/secure/role/scene', payload)
       } else {
-        const { data } = await this.$axios.post('/secure/role/scene/add', payload)
-        console.log(data)
+        resp = await this.$axios.post('/secure/role/scene/add', payload)
       }
+      const data = resp.data
+      console.log(data)
+      if (data === 'success') {
+        this.$message.success('操作成功！')
+      } else {
+        this.$message.error('操作失败！')
+      }
+      this.dialogVisible = false
+      this.rolesList = []
+      this.getRoles()
+
       // console.log('当前选择的节点（node）：', this.$refs.tree.getCheckedNodes(false))
       return
-
-      const checkedKeys = this.$refs.tree.getCheckedKeys()
-      this.role.routes = this.generateTree(deepClone(this.serviceRoutes), '/', checkedKeys)
-
-      if (isEdit) {
-        await updateRole(this.role.key, this.role)
-        for (let index = 0; index < this.rolesList.length; index++) {
-          if (this.rolesList[index].key === this.role.key) {
-            this.rolesList.splice(index, 1, Object.assign({}, this.role))
-            break
-          }
-        }
-      } else {
-        const { data } = await addRole(this.role)
-        this.role.key = data.key
-        this.rolesList.push(this.role)
-      }
-
-      const { description, key, name } = this.role
-      this.dialogVisible = false
-      this.$notify({
-        title: 'Success',
-        dangerouslyUseHTMLString: true,
-        message: `
-            <div>Role Key: ${key}</div>
-            <div>Role Name: ${name}</div>
-            <div>Description: ${description}</div>
-          `,
-        type: 'success'
-      })
+      //
+      // const checkedKeys = this.$refs.tree.getCheckedKeys()
+      // this.role.routes = this.generateTree(deepClone(this.serviceRoutes), '/', checkedKeys)
+      //
+      // if (isEdit) {
+      //   await updateRole(this.role.key, this.role)
+      //   for (let index = 0; index < this.rolesList.length; index++) {
+      //     if (this.rolesList[index].key === this.role.key) {
+      //       this.rolesList.splice(index, 1, Object.assign({}, this.role))
+      //       break
+      //     }
+      //   }
+      // } else {
+      //   const { data } = await addRole(this.role)
+      //   this.role.key = data.key
+      //   this.rolesList.push(this.role)
+      // }
+      //
+      // const { description, key, name } = this.role
+      // this.dialogVisible = false
+      // this.$notify({
+      //   title: 'Success',
+      //   dangerouslyUseHTMLString: true,
+      //   message: `
+      //       <div>Role Key: ${key}</div>
+      //       <div>Role Name: ${name}</div>
+      //       <div>Description: ${description}</div>
+      //     `,
+      //   type: 'success'
+      // })
     },
     // reference: src/view/layout/components/Sidebar/SidebarItem.vue
     onlyOneShowingChild(children = [], parent) {

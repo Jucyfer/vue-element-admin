@@ -224,10 +224,12 @@ import simplechart from '@/components/Charts/SingleDataLineChart'
 import fundSummary from '@/components/Panel/FundSummary'
 import elLabel from '@/components/elementx/simple/label/el-label'
 import clipboard from '@/directive/clipboard/index.js' // use clipboard by v-directive
+import waves from '@/directive/waves' // waves directive
 export default {
   name: 'FundValueInfoList',
   directives: {
-    clipboard
+    clipboard,
+    waves
   },
   filters: {
     valueValidator(param) {

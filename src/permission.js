@@ -32,8 +32,11 @@ router.beforeEach(async(to, from, next) => {
         try {
           // get user info
           // note: roles must be a object array! such as: ['admin'] or ,['developer','editor']
+          // 首先请求用户资料
           const data = await store.dispatch('user/getInfo')
           // generate accessible routes map based on roles
+          // 然后通过store的函数，原框架demo中是拿用户的角色列表去过滤菜单
+          // 但是，我们的业务逻辑是直接拿着token去向后端接口请求组装好的菜单
           const accessRoutes = await store.dispatch('permission/generateRoutes', data.roles)
           // dynamically add accessible routes
           router.addRoutes(accessRoutes)

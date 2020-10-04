@@ -224,13 +224,15 @@
 <script>
 import store from '@/store/index'
 import simplechart from '@/components/Charts/SingleDataLineChart'
+import waves from '@/directive/waves' // waves directive
 import fundSummary from '@/components/Panel/FundSummary'
 import elLabel from '@/components/elementx/simple/label/el-label'
 import clipboard from '@/directive/clipboard/index.js' // use clipboard by v-directive
 export default {
   name: 'CustmizedProductInfoList',
   directives: {
-    clipboard
+    clipboard,
+    waves
   },
   filters: {
     valueValidator(param) {

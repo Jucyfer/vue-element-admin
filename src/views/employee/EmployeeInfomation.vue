@@ -77,8 +77,12 @@
 
 <script>
 import store from '@/store/index'
+import waves from '@/directive/waves' // waves directive
 export default {
   name: 'EmployeeInfomation',
+  directives: {
+    waves
+  },
   filters: {
     positionFilter(param) {
       return store.getters.employeepositionTranslation[param]

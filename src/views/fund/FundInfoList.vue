@@ -145,8 +145,13 @@
 
 <script>
 import store from '@/store/index'
+import waves from '@/directive/waves' // waves directive
+
 export default {
   name: 'FundList',
+  directives: {
+    waves
+  },
   filters: {
     dateFilter(param) {
       const date = new Date(parseFloat(param))

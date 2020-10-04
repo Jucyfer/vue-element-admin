@@ -179,9 +179,13 @@
 import store from '@/store/index'
 import simplechart from '@/components/Charts/SingleDataLineChart'
 import fundSummary from '@/components/Panel/FundSummary'
+import waves from '@/directive/waves' // waves directive
 
 export default {
   name: 'FundOverView',
+  directives: {
+    waves
+  },
   filters: {
     valueValidator(param) {
       return param == null || param == 0 ? '--' : param

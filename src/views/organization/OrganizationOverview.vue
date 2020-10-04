@@ -91,7 +91,12 @@
 
 <script>
 import store from '@/store/index'
+import waves from '@/directive/waves' // waves directive
+
 export default {
+  directives: {
+    waves
+  },
   filters: {
     valueValidator(param) {
       return param == null || param == 0 ? '--' : param
